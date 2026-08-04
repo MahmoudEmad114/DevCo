@@ -5,6 +5,10 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Task must have a title']
     },
+    labels: [{
+        type: String,
+        trim: true
+    }],
     description: {
         type: String,
         default: ''
@@ -25,12 +29,12 @@ const taskSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['todo', 'in-progress', 'done'],
+        enum: ['todo', 'in-progress', 'review', 'testing', 'done'],
         default: 'todo'
     },
     priority: {
         type: String,
-        enum: ['low', 'medium', 'high'],
+        enum: ['low', 'medium', 'high', 'urgent'],
         default: 'medium'
     },
     dueDate: {
