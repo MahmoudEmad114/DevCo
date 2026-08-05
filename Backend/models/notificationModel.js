@@ -15,12 +15,14 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['task-assigned', 'issue-assigned', 'comment-added', 'mention', 'status-changed'],
+        enum: ['task-assigned', 'issue-assigned', 'comment-added', 'mention', 'status-changed', 'workspace-invitation'],
         required: [true, 'Notification must have a type']
     },
     message: {
         type: String,
-        required: [true, 'Notification must have a message']
+        required: [true, 'Notification must have a message'],
+        trim: true,
+        maxlength: [500, 'Notification message cannot exceed 500 characters']
     },
     // this can point to a Task, Issue, Comment or Project depending on relatedItemType
     relatedItem: {
@@ -37,6 +39,12 @@ const notificationSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+notificationSchema.index({
+    recipient: 1,
+    isRead: 1,
+    createdAt: -1
 });
 
 const Notification = mongoose.model('Notification', notificationSchema);
