@@ -3,6 +3,12 @@ const morgan = require('morgan');
 const taskRouter = require('./routes/taskRoutes');
 const memberRouter = require('./routes/memberRoutes');
 const authRouter = require('./routes/authRoutes');
+const issueRouter = require('./routes/issueRoutes');
+const notificationRouter = require('./routes/notificationRoutes');
+const userRouter = require('./routes/userRoutes');
+const projectRouter = require('./routes/projectRoutes');
+const workspaceRouter = require('./routes/workspaceRoutes');
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -24,8 +30,13 @@ app.get('/test', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
-app.use('/api/tasks', taskRouter);
-app.use('/api', memberRouter);
+app.use('/api/v1/tasks', taskRouter);
+app.use('/api/v1/members', memberRouter);
+app.use('/api/v1/issues', issueRouter);
+app.use('/api/v1/notifications', notificationRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/projects', projectRouter);
+app.use('/api/v1/workspaces', workspaceRouter);
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

@@ -1,169 +1,520 @@
 const Issue = require('../models/issueModel');
+const ProjectMember = require('../models/projectMemberModel');
 
-// TODO: swap reportedBy to req.user.id once auth is done, for now sending it from body
-exports.createIssue = async (req, res) => {
-    try {
-        const newIssue = await Issue.create({
-            title: req.body.title,
-            description: req.body.description,
-            project: req.body.project,
-            reportedBy: req.body.reportedBy,
-            assignedTo: req.body.assignedTo,
-            priority: req.body.priority,
-            severity: req.body.severity
-        });
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-        res.status(201).json({
-            status: 'success',
-            data: { issue: newIssue }
-        });
+// ======================================================
+// Helpers
+// ======================================================
 
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
+const checkProjectMembership = async (projectId, userId) => {
+
+    return await ProjectMember.findOne({
+        project: projectId,
+        user: userId,
+        status: 'accepted'
+    });
+
 };
 
-exports.getAllIssues = async (req, res) => {
-    try {
-        const filter = {};
+const checkIssueMembership = async (issueId, userId) => {
 
-        if (req.query.project) filter.project = req.query.project;
-        if (req.query.status) filter.status = req.query.status;
-        if (req.query.assignedTo) filter.assignedTo = req.query.assignedTo;
-        // could add priority/severity filters later if we need them
+    const issue = await Issue.findById(issueId);
 
-        const issues = await Issue.find(filter)
-            .populate('reportedBy', 'name email')
-            .populate('assignedTo', 'name email');
-
-        res.status(200).json({
-            status: 'success',
-            results: issues.length,
-            data: { issues }
-        });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (!issue) {
+        return {
+            issue: null,
+            membership: null
+        };
     }
+
+    const membership = await checkProjectMembership(
+        issue.project,
+        userId
+    );
+
+    return {
+        issue,
+        membership
+    };
+
 };
 
-exports.getIssue = async (req, res) => {
-    try {
-        const issue = await Issue.findById(req.params.id)
-            .populate('reportedBy', 'name email')
-            .populate('assignedTo', 'name email');
+// ======================================================
+// Create Issue
+// ======================================================
 
-        if (!issue) {
-            return res.status(404).json({ status: 'fail', message: 'no issue found with that id' });
+exports.createIssue = catchAsync(async (req, res, next) => {
+
+    const membership = await checkProjectMembership(
+        req.body.project,
+        req.user._id
+    );
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+    }
+
+    if (req.body.assignedTo) {
+
+        const assigneeMembership =
+            await checkProjectMembership(
+                req.body.project,
+                req.body.assignedTo
+            );
+
+        if (!assigneeMembership) {
+            return next(
+                new AppError(
+                    'Assigned user is not a member of this project',
+                    400
+                )
+            );
         }
 
-        res.status(200).json({
-            status: 'success',
-            data: { issue }
-        });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
     }
-};
 
-exports.updateIssue = async (req, res) => {
-    try {
-        const issue = await Issue.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+    const issue = await Issue.create({
 
-        if (!issue) {
-            return res.status(404).json({ status: 'fail', message: 'no issue found with that id' });
+        title: req.body.title,
+        description: req.body.description,
+        project: req.body.project,
+        reportedBy: req.user._id,
+        assignedTo: req.body.assignedTo,
+        priority: req.body.priority,
+        severity: req.body.severity
+
+    });
+
+    res.status(201).json({
+
+        status: 'success',
+        data: {
+            issue
         }
 
-        res.status(200).json({
-            status: 'success',
-            data: { issue }
-        });
+    });
 
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
+});
 
-exports.deleteIssue = async (req, res) => {
-    try {
-        const issue = await Issue.findByIdAndDelete(req.params.id);
+// ======================================================
+// Get All Issues
+// ======================================================
 
-        if (!issue) {
-            return res.status(404).json({ status: 'fail', message: 'no issue found with that id' });
+exports.getAllIssues = catchAsync(async (req, res, next) => {
+
+    const memberships = await ProjectMember.find({
+
+        user: req.user._id,
+        status: 'accepted'
+
+    }).select('project');
+
+    const projectIds = memberships.map(
+        member => member.project
+    );
+
+    const filter = {
+
+        project: {
+            $in: projectIds
         }
 
-        res.status(204).json({ status: 'success', data: null });
+    };
 
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
+    if (req.query.project)
+        filter.project = req.query.project;
 
-// separate route for assigning so the frontend doesn't have to send the whole issue object
-// just to change who's working on it
-exports.assignIssue = async (req, res) => {
-    try {
-        const { assignedTo } = req.body;
+    if (req.query.status)
+        filter.status = req.query.status;
 
-        if (!assignedTo) {
-            return res.status(400).json({ status: 'fail', message: 'assignedTo is required' });
-        }
+    if (req.query.assignedTo)
+        filter.assignedTo = req.query.assignedTo;
 
-        const issue = await Issue.findByIdAndUpdate(
-            req.params.id,
-            { assignedTo },
-            { new: true, runValidators: true }
-        ).populate('assignedTo', 'name email');
+    const issues = await Issue.find(filter)
 
-        if (!issue) {
-            return res.status(404).json({ status: 'fail', message: 'no issue found with that id' });
-        }
+        .populate(
+            'reportedBy',
+            'name email'
+        )
 
-        // still need to send a notification to whoever just got assigned
-        // holding off until notification creation is sorted between controllers
+        .populate(
+            'assignedTo',
+            'name email'
+        )
 
-        res.status(200).json({
-            status: 'success',
-            data: { issue }
-        });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
-
-// used by the kanban board when a card gets dragged to a different column
-exports.changeIssueStatus = async (req, res) => {
-    const allowedStatuses = ['open', 'in-progress', 'resolved', 'closed'];
-
-    if (!allowedStatuses.includes(req.body.status)) {
-        return res.status(400).json({
-            status: 'fail',
-            message: 'status must be one of: ' + allowedStatuses.join(', ')
-        });
-    }
-
-    try {
-        const issue = await Issue.findByIdAndUpdate(
-            req.params.id,
-            { status: req.body.status },
-            { new: true, runValidators: true }
+        .populate(
+            'project',
+            'name'
         );
 
-        if (!issue) {
-            return res.status(404).json({ status: 'fail', message: 'no issue found with that id' });
+    res.status(200).json({
+
+        status: 'success',
+        results: issues.length,
+
+        data: {
+            issues
         }
 
-        res.status(200).json({
-            status: 'success',
-            data: { issue }
-        });
+    });
 
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+});
+
+// ======================================================
+// Get Single Issue
+// ======================================================
+
+exports.getIssue = catchAsync(async (req, res, next) => {
+
+    const result = await checkIssueMembership(
+        req.params.id,
+        req.user._id
+    );
+
+    if (!result.issue) {
+
+        return next(
+            new AppError(
+                'No issue found with that id',
+                404
+            )
+        );
+
     }
-};
+
+    if (!result.membership) {
+
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+
+    }
+
+    const issue = await Issue.findById(req.params.id)
+
+        .populate(
+            'reportedBy',
+            'name email'
+        )
+
+        .populate(
+            'assignedTo',
+            'name email'
+        )
+
+        .populate(
+            'project',
+            'name'
+        );
+
+    res.status(200).json({
+
+        status: 'success',
+
+        data: {
+            issue
+        }
+
+    });
+
+});
+
+// ======================================================
+// Update Issue
+// ======================================================
+
+exports.updateIssue = catchAsync(async (req, res, next) => {
+
+    const { issue, membership } = await checkIssueMembership(
+        req.params.id,
+        req.user._id
+    );
+
+    if (!issue) {
+        return next(
+            new AppError(
+                'No issue found with that id',
+                404
+            )
+        );
+    }
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+    }
+
+    if (req.body.assignedTo) {
+
+        const assigneeMembership =
+            await checkProjectMembership(
+                issue.project,
+                req.body.assignedTo
+            );
+
+        if (!assigneeMembership) {
+            return next(
+                new AppError(
+                    'Assigned user is not a member of this project',
+                    400
+                )
+            );
+        }
+
+    }
+
+    const allowedFields = [
+        'title',
+        'description',
+        'assignedTo',
+        'priority',
+        'severity'
+    ];
+
+    const updates = {};
+
+    allowedFields.forEach(field => {
+
+        if (req.body[field] !== undefined)
+            updates[field] = req.body[field];
+
+    });
+
+    const updatedIssue = await Issue.findByIdAndUpdate(
+
+        req.params.id,
+        updates,
+
+        {
+            new: true,
+            runValidators: true
+        }
+
+    )
+
+        .populate('reportedBy', 'name email')
+        .populate('assignedTo', 'name email');
+
+    res.status(200).json({
+
+        status: 'success',
+
+        data: {
+            issue: updatedIssue
+        }
+
+    });
+
+});
+// ======================================================
+// Delete Issue
+// ======================================================
+
+exports.deleteIssue = catchAsync(async (req, res, next) => {
+
+    const { issue, membership } = await checkIssueMembership(
+        req.params.id,
+        req.user._id
+    );
+
+    if (!issue) {
+        return next(
+            new AppError(
+                'No issue found with that id',
+                404
+            )
+        );
+    }
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+    }
+
+    await Issue.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
+
+        status: 'success',
+        data: null
+
+    });
+
+});
+// ======================================================
+// Assign Issue
+// ======================================================
+
+exports.assignIssue = catchAsync(async (req, res, next) => {
+
+    const { issue, membership } = await checkIssueMembership(
+        req.params.id,
+        req.user._id
+    );
+
+    if (!issue) {
+        return next(
+            new AppError(
+                'No issue found with that id',
+                404
+            )
+        );
+    }
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+    }
+
+    const { assignedTo } = req.body;
+
+    if (!assignedTo) {
+        return next(
+            new AppError(
+                'assignedTo user id is required',
+                400
+            )
+        );
+    }
+
+    const assigneeMembership =
+        await checkProjectMembership(
+            issue.project,
+            assignedTo
+        );
+
+    if (!assigneeMembership) {
+        return next(
+            new AppError(
+                'Cannot assign issue to a user who is not a member of this project',
+                400
+            )
+        );
+    }
+
+    const updatedIssue = await Issue.findByIdAndUpdate(
+
+        req.params.id,
+
+        {
+            assignedTo
+        },
+
+        {
+            new: true,
+            runValidators: true
+        }
+
+    )
+        .populate('assignedTo', 'name email')
+        .populate('reportedBy', 'name email');
+
+    res.status(200).json({
+
+        status: 'success',
+
+        data: {
+            issue: updatedIssue
+        }
+
+    });
+
+});
+
+// ======================================================
+// Change Issue Status
+// ======================================================
+
+exports.changeIssueStatus = catchAsync(async (req, res, next) => {
+
+    const { issue, membership } = await checkIssueMembership(
+        req.params.id,
+        req.user._id
+    );
+
+    if (!issue) {
+        return next(
+            new AppError(
+                'No issue found with that id',
+                404
+            )
+        );
+    }
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
+    }
+
+    const { status } = req.body;
+
+    const allowedStatuses = [
+        'open',
+        'in-progress',
+        'resolved',
+        'closed'
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+        return next(
+            new AppError(
+                `Status must be one of: ${allowedStatuses.join(', ')}`,
+                400
+            )
+        );
+    }
+
+    const updatedIssue = await Issue.findByIdAndUpdate(
+
+        req.params.id,
+
+        {
+            status
+        },
+
+        {
+            new: true,
+            runValidators: true
+        }
+
+    )
+        .populate('assignedTo', 'name email')
+        .populate('reportedBy', 'name email');
+
+    res.status(200).json({
+
+        status: 'success',
+
+        data: {
+            issue: updatedIssue
+        }
+
+    });
+
+});
