@@ -1,86 +1,103 @@
 const Notification = require('../models/notificationModel');
 
-// recipient is coming from a query param for now, swap to req.user.id once protect middleware exists
-exports.getMyNotifications = async (req, res) => {
-    try {
-        const recipientId = req.query.recipient;
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
-        if (!recipientId) {
-            return res.status(400).json({ status: 'fail', message: 'recipient id is required' });
-        }
+// ======================================================
+// Notifications
+// ======================================================
 
-        const filter = { recipient: recipientId };
-        if (req.query.isRead) filter.isRead = req.query.isRead === 'true';
+exports.getMyNotifications = catchAsync(async (req, res, next) => {
 
-        const notifications = await Notification.find(filter)
-            .sort('-createdAt')
-            .populate('sender', 'name');
+    const filter = {
+        recipient: req.user._id
+    };
 
-        res.status(200).json({
-            status: 'success',
-            results: notifications.length,
-            data: { notifications }
-        });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (req.query.isRead !== undefined) {
+        filter.isRead = req.query.isRead === 'true';
     }
-};
 
-exports.markAsRead = async (req, res) => {
-    try {
-        const notification = await Notification.findByIdAndUpdate(
-            req.params.id,
-            { isRead: true },
-            { new: true }
+    const notifications = await Notification.find(filter)
+        .sort('-createdAt')
+        .populate('sender', 'name');
+
+    res.status(200).json({
+        status: 'success',
+        results: notifications.length,
+        data: {
+            notifications
+        }
+    });
+
+});
+
+exports.markAsRead = catchAsync(async (req, res, next) => {
+
+    const notification = await Notification.findOne({
+        _id: req.params.id,
+        recipient: req.user._id
+    });
+
+    if (!notification) {
+        return next(
+            new AppError(
+                'No notification found with that id',
+                404
+            )
         );
+    }
 
-        if (!notification) {
-            return res.status(404).json({ status: 'fail', message: 'no notification found with that id' });
+    notification.isRead = true;
+
+    await notification.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            notification
         }
+    });
 
-        res.status(200).json({
-            status: 'success',
-            data: { notification }
-        });
+});
 
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
+exports.markAllAsRead = catchAsync(async (req, res, next) => {
 
-// marks everything unread for this user as read, used by the "clear all" button
-exports.markAllAsRead = async (req, res) => {
-    const recipientId = req.body.recipient;
+    await Notification.updateMany(
+        {
+            recipient: req.user._id,
+            isRead: false
+        },
+        {
+            isRead: true
+        }
+    );
 
-    if (!recipientId) {
-        return res.status(400).json({ status: 'fail', message: 'recipient id is required' });
-    }
+    res.status(200).json({
+        status: 'success',
+        message: 'All notifications marked as read'
+    });
 
-    try {
-        await Notification.updateMany(
-            { recipient: recipientId, isRead: false },
-            { isRead: true }
+});
+
+exports.deleteNotification = catchAsync(async (req, res, next) => {
+
+    const notification = await Notification.findOneAndDelete({
+        _id: req.params.id,
+        recipient: req.user._id
+    });
+
+    if (!notification) {
+        return next(
+            new AppError(
+                'No notification found with that id',
+                404
+            )
         );
-
-        res.status(200).json({ status: 'success', message: 'all notifications marked as read' });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
     }
-};
 
-exports.deleteNotification = async (req, res) => {
-    try {
-        const notification = await Notification.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
 
-        if (!notification) {
-            return res.status(404).json({ status: 'fail', message: 'no notification found with that id' });
-        }
-
-        res.status(204).json({ status: 'success', data: null });
-
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
+});

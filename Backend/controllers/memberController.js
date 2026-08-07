@@ -2,19 +2,26 @@ const ProjectMember = require('../models/projectMemberModel');
 const WorkspaceMember = require('../models/workspaceMemberModel');
 const Workspace = require('../models/workspaceModel');
 
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const checkWorkspaceMembership = async (workspaceId, userId) => {
     const workspace = await Workspace.findById(workspaceId);
-    if (workspace && workspace.owner.toString() === userId.toString()) {
-        return { role: 'owner', isRealOwner: true };
+    if (!workspace) return null;
+
+    if (workspace.owner.toString() === userId.toString()) {
+        return {
+            role: 'owner',
+            isRealOwner: true
+        };
     }
 
-    const membership = await WorkspaceMember.findOne({
+    return await WorkspaceMember.findOne({
         workspace: workspaceId,
         user: userId,
         status: 'accepted'
     });
-    return membership;
+
 };
 
 const checkProjectMembershipAccepted = async (projectId, userId) => {
@@ -25,302 +32,539 @@ const checkProjectMembershipAccepted = async (projectId, userId) => {
     });
 };
 
+exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
 
-exports.inviteToWorkspace = async (req, res) => {
-    try {
-        const inviterMembership = await checkWorkspaceMembership(req.params.workspaceId, req.user._id);
-        if (!inviterMembership || !['owner', 'admin'].includes(inviterMembership.role)) {
-            return res.status(403).json({ status: 'fail', message: 'Only owner/admin can invite members' });
-        }
+    const inviterMembership = await checkWorkspaceMembership(
+        req.params.workspaceId,
+        req.user._id
+    );
 
-        const { userId } = req.body;
-        if (!userId) {
-            return res.status(400).json({ status: 'fail', message: 'userId is required' });
-        }
-
-        const existing = await WorkspaceMember.findOne({ workspace: req.params.workspaceId, user: userId });
-        if (existing) {
-            return res.status(400).json({ status: 'fail', message: `User already has status: ${existing.status} in this workspace` });
-        }
-
-        const invite = await WorkspaceMember.create({
-            workspace: req.params.workspaceId,
-            user: userId,
-            status: 'pending'
-        });
-
-        res.status(201).json({ status: 'success', data: { invite } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (!inviterMembership || !['owner', 'admin'].includes(inviterMembership.role)) {
+        return next(
+            new AppError(
+                'Only owner/admin can invite members',
+                403
+            )
+        );
     }
-};
+    const { userId } = req.body;
 
-
-exports.acceptWorkspaceInvite = async (req, res) => {
-    try {
-        const membership = await WorkspaceMember.findOne({
-            workspace: req.params.workspaceId,
-            user: req.user._id,
-            status: 'pending'
-        });
-
-        if (!membership) {
-            return res.status(404).json({ status: 'fail', message: 'No pending invite found for this workspace' });
-        }
-
-        membership.status = 'accepted';
-        await membership.save();
-
-        res.status(200).json({ status: 'success', data: { membership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (!userId) {
+        return next(
+            new AppError(
+                'userId is required',
+                400
+            )
+        );
     }
-};
 
+    const existing = await WorkspaceMember.findOne({
+        workspace: req.params.workspaceId,
+        user: userId
+    });
 
-exports.rejectWorkspaceInvite = async (req, res) => {
-    try {
-        const membership = await WorkspaceMember.findOne({
-            workspace: req.params.workspaceId,
-            user: req.user._id,
-            status: 'pending'
-        });
-
-        if (!membership) {
-            return res.status(404).json({ status: 'fail', message: 'No pending invite found for this workspace' });
-        }
-
-        membership.status = 'rejected';
-        await membership.save();
-
-        res.status(200).json({ status: 'success', data: { membership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (existing) {
+        return next(
+            new AppError(
+                `User already has status: ${existing.status} in this workspace`,
+                400
+            )
+        );
     }
-};
 
+    const invite = await WorkspaceMember.create({
+        workspace: req.params.workspaceId,
+        user: userId,
+        role: 'member',
+        status: 'pending'
+    });
 
-exports.removeWorkspaceMember = async (req, res) => {
-    try {
-        const requesterMembership = await checkWorkspaceMembership(req.params.workspaceId, req.user._id);
-        if (!requesterMembership || !['owner', 'admin'].includes(requesterMembership.role)) {
-            return res.status(403).json({ status: 'fail', message: 'Only owner/admin can remove members' });
+    res.status(201).json({
+        status: 'success',
+        data: {
+            invite
         }
+    });
 
-        const targetMembership = await WorkspaceMember.findOne({
+});
+
+exports.acceptWorkspaceInvite = catchAsync(async (req, res, next) => {
+    const membership = await WorkspaceMember.findOne({
+        workspace: req.params.workspaceId,
+        user: req.user._id,
+        status: 'pending'
+    });
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'No pending invite found for this workspace',
+                404
+            )
+        );
+    }
+
+    membership.status = 'accepted';
+    membership.joinedAt = Date.now();
+
+    await membership.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership
+        }
+    });
+
+});
+
+exports.rejectWorkspaceInvite = catchAsync(async (req, res, next) => {
+
+    const membership = await WorkspaceMember.findOne({
+        workspace: req.params.workspaceId,
+        user: req.user._id,
+        status: 'pending'
+    });
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'No pending invite found for this workspace',
+                404
+            )
+        );
+    }
+
+    membership.status = 'rejected';
+    await membership.save();
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership
+        }
+    });
+
+});
+
+exports.removeWorkspaceMember = catchAsync(async (req, res, next) => {
+    const requesterMembership = await checkWorkspaceMembership(
+        req.params.workspaceId,
+        req.user._id
+    );
+    if (!requesterMembership || !['owner', 'admin'].includes(requesterMembership.role)) {
+        return next(
+            new AppError(
+                'Only owner/admin can remove members',
+                403
+            )
+        );
+    }
+
+    const targetMembership = await WorkspaceMember.findOne({
+        workspace: req.params.workspaceId,
+        user: req.params.userId
+    });
+
+    if (!targetMembership) {
+        return next(
+            new AppError(
+                'Member not found in this workspace',
+                404
+            )
+        );
+    }
+
+    if (targetMembership.role === 'owner') {
+        return next(
+            new AppError(
+                'Workspace owner cannot be removed',
+                400
+            )
+        );
+    }
+
+    await WorkspaceMember.findByIdAndDelete(targetMembership._id);
+
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+
+});
+
+exports.changeWorkspaceRole = catchAsync(async (req, res, next) => {
+
+    const requesterMembership = await checkWorkspaceMembership(
+        req.params.workspaceId,
+        req.user._id
+    );
+
+    if (!requesterMembership || requesterMembership.role !== 'owner') {
+        return next(
+            new AppError(
+                'Only the owner can change roles',
+                403
+            )
+        );
+    }
+
+    const { role } = req.body;
+
+    const allowedRoles = [
+        'admin',
+        'member'
+    ];
+
+    if (!allowedRoles.includes(role)) {
+        return next(
+            new AppError(
+                `Role must be one of: ${allowedRoles.join(', ')}`,
+                400
+            )
+        );
+    }
+
+    const targetMembership = await WorkspaceMember.findOneAndUpdate(
+        {
             workspace: req.params.workspaceId,
+            user: req.params.userId
+        },
+        {
+            role
+        },
+        {
+            new: true,
+            runValidators: true
+        }
+    );
+
+    if (!targetMembership) {
+        return next(
+            new AppError(
+                'Member not found in this workspace',
+                404
+            )
+        );
+    }
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership: targetMembership
+        }
+    });
+
+});
+
+exports.getWorkspaceMembers = catchAsync(async (req, res, next) => {
+
+    const membership = await checkWorkspaceMembership(
+        req.params.workspaceId,
+        req.user._id
+    );
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this workspace',
+                403
+            )
+        );
+    }
+
+    const members = await WorkspaceMember.find({
+        workspace: req.params.workspaceId,
+        status: 'accepted'
+    })
+        .populate('user', 'name email')
+        .sort('role');
+
+    res.status(200).json({
+        status: 'success',
+        results: members.length,
+        data: {
+            members
+        }
+    });
+
+});
+
+exports.inviteToProject = catchAsync(async (req, res, next) => {
+
+    const inviterMembership = await checkProjectMembershipAccepted(
+        req.params.projectId,
+        req.user._id
+    );
+
+    if (
+        !inviterMembership ||
+        inviterMembership.role !== 'project_manager'
+    ) {
+        return next(
+            new AppError(
+                'Only the project manager can invite members',
+                403
+            )
+        );
+    }
+
+    const { userId } = req.body;
+
+    if (!userId) {
+        return next(
+            new AppError(
+                'userId is required',
+                400
+            )
+        );
+    }
+
+    const existing = await ProjectMember.findOne({
+        project: req.params.projectId,
+        user: userId
+    });
+
+    if (existing) {
+        return next(
+            new AppError(
+                `User already has status: ${existing.status} in this project`,
+                400
+            )
+        );
+    }
+
+    const invite = await ProjectMember.create({
+        project: req.params.projectId,
+        user: userId,
+        role: 'member',
+        status: 'pending'
+    });
+
+    res.status(201).json({
+        status: 'success',
+        data: {
+            invite
+        }
+    });
+
+});
+
+exports.acceptProjectInvite = catchAsync(async (req, res, next) => {
+
+    const membership = await ProjectMember.findOne({
+        project: req.params.projectId,
+        user: req.user._id,
+        status: 'pending'
+    });
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'No pending invite found for this project',
+                404
+            )
+        );
+    }
+
+    membership.status = 'accepted';
+    membership.joinedAt = Date.now();
+
+    await membership.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership
+        }
+    });
+
+});
+
+exports.rejectProjectInvite = catchAsync(async (req, res, next) => {
+
+    const membership = await ProjectMember.findOne({
+        project: req.params.projectId,
+        user: req.user._id,
+        status: 'pending'
+    });
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'No pending invite found for this project',
+                404
+            )
+        );
+    }
+
+    membership.status = 'rejected';
+
+    await membership.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership
+        }
+    });
+
+});
+
+exports.removeProjectMember = catchAsync(async (req, res, next) => {
+
+    const requesterMembership =
+        await checkProjectMembershipAccepted(
+            req.params.projectId,
+            req.user._id
+        );
+
+    if (
+        !requesterMembership ||
+        requesterMembership.role !== 'project_manager'
+    ) {
+        return next(
+            new AppError(
+                'Only the project manager can remove members',
+                403
+            )
+        );
+    }
+
+    const targetMembership =
+        await ProjectMember.findOne({
+            project: req.params.projectId,
             user: req.params.userId
         });
 
-        if (!targetMembership) {
-            return res.status(404).json({ status: 'fail', message: 'Member not found in this workspace' });
-        }
-
-        if (targetMembership.role === 'owner') {
-            return res.status(400).json({ status: 'fail', message: 'Cannot remove the workspace owner' });
-        }
-
-        await WorkspaceMember.findByIdAndDelete(targetMembership._id);
-
-        res.status(204).json({ status: 'success', data: null });
-    } catch (err) {
-        res.status(500).json({ status: 'fail', message: err.message });
+    if (!targetMembership) {
+        return next(
+            new AppError(
+                'Member not found in this project',
+                404
+            )
+        );
     }
-};
 
-exports.changeWorkspaceRole = async (req, res) => {
-    try {
-        const requesterMembership = await checkWorkspaceMembership(req.params.workspaceId, req.user._id);
-        if (!requesterMembership || requesterMembership.role !== 'owner') {
-            return res.status(403).json({ status: 'fail', message: 'Only the owner can change roles' });
-        }
+    if (targetMembership.role === 'project_manager') {
+        return next(
+            new AppError(
+                'Cannot remove the project manager',
+                400
+            )
+        );
+    }
 
-        const { role } = req.body;
-        const allowedRoles = ['owner', 'admin', 'member'];
-        if (!allowedRoles.includes(role)) {
-            return res.status(400).json({ status: 'fail', message: `Role must be one of: ${allowedRoles.join(', ')}` });
-        }
+    await ProjectMember.findByIdAndDelete(
+        targetMembership._id
+    );
 
-        const targetMembership = await WorkspaceMember.findOneAndUpdate(
-            { workspace: req.params.workspaceId, user: req.params.userId },
-            { role },
-            { new: true, runValidators: true }
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+
+});
+
+exports.changeProjectRole = catchAsync(async (req, res, next) => {
+
+    const requesterMembership =
+        await checkProjectMembershipAccepted(
+            req.params.projectId,
+            req.user._id
         );
 
-        if (!targetMembership) {
-            return res.status(404).json({ status: 'fail', message: 'Member not found in this workspace' });
-        }
-
-        res.status(200).json({ status: 'success', data: { membership: targetMembership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (
+        !requesterMembership ||
+        requesterMembership.role !== 'project_manager'
+    ) {
+        return next(
+            new AppError(
+                'Only the project manager can change roles',
+                403
+            )
+        );
     }
-};
 
+    const { role } = req.body;
 
-exports.getWorkspaceMembers = async (req, res) => {
-    try {
-        const membership = await checkWorkspaceMembership(req.params.workspaceId, req.user._id);
-        if (!membership) {
-            return res.status(403).json({ status: 'fail', message: 'You are not a member of this workspace' });
-        }
+    const allowedRoles = [
+        'developer',
+        'tester',
+        'member'
+    ];
 
-        const members = await WorkspaceMember.find({
-            workspace: req.params.workspaceId,
-            status: 'accepted'
-        }).populate('user', 'name email');
-
-        res.status(200).json({ status: 'success', results: members.length, data: { members } });
-    } catch (err) {
-        res.status(500).json({ status: 'fail', message: err.message });
+    if (!allowedRoles.includes(role)) {
+        return next(
+            new AppError(
+                `Role must be one of: ${allowedRoles.join(', ')}`,
+                400
+            )
+        );
     }
-};
 
-
-exports.inviteToProject = async (req, res) => {
-    try {
-        const inviterMembership = await checkProjectMembershipAccepted(req.params.projectId, req.user._id);
-        if (!inviterMembership || inviterMembership.role !== 'project_manager') {
-            return res.status(403).json({ status: 'fail', message: 'Only the project manager can invite members' });
-        }
-
-        const { userId } = req.body;
-        if (!userId) {
-            return res.status(400).json({ status: 'fail', message: 'userId is required' });
-        }
-
-        const existing = await ProjectMember.findOne({ project: req.params.projectId, user: userId });
-        if (existing) {
-            return res.status(400).json({ status: 'fail', message: `User already has status: ${existing.status} in this project` });
-        }
-
-        const invite = await ProjectMember.create({
-            project: req.params.projectId,
-            user: userId,
-            status: 'pending'
-        });
-
-        res.status(201).json({ status: 'success', data: { invite } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
-
-
-exports.acceptProjectInvite = async (req, res) => {
-    try {
-        const membership = await ProjectMember.findOne({
-            project: req.params.projectId,
-            user: req.user._id,
-            status: 'pending'
-        });
-
-        if (!membership) {
-            return res.status(404).json({ status: 'fail', message: 'No pending invite found for this project' });
-        }
-
-        membership.status = 'accepted';
-        await membership.save();
-
-        res.status(200).json({ status: 'success', data: { membership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
-
-
-exports.rejectProjectInvite = async (req, res) => {
-    try {
-        const membership = await ProjectMember.findOne({
-            project: req.params.projectId,
-            user: req.user._id,
-            status: 'pending'
-        });
-
-        if (!membership) {
-            return res.status(404).json({ status: 'fail', message: 'No pending invite found for this project' });
-        }
-
-        membership.status = 'rejected';
-        await membership.save();
-
-        res.status(200).json({ status: 'success', data: { membership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
-    }
-};
-
-
-exports.removeProjectMember = async (req, res) => {
-    try {
-        const requesterMembership = await checkProjectMembershipAccepted(req.params.projectId, req.user._id);
-        if (!requesterMembership || requesterMembership.role !== 'project_manager') {
-            return res.status(403).json({ status: 'fail', message: 'Only the project manager can remove members' });
-        }
-
-        const targetMembership = await ProjectMember.findOne({
-            project: req.params.projectId,
-            user: req.params.userId
-        });
-
-        if (!targetMembership) {
-            return res.status(404).json({ status: 'fail', message: 'Member not found in this project' });
-        }
-
-        await ProjectMember.findByIdAndDelete(targetMembership._id);
-
-
-        res.status(204).json({ status: 'success', data: null });
-    } catch (err) {
-        res.status(500).json({ status: 'fail', message: err.message });
-    }
-};
-
-
-exports.changeProjectRole = async (req, res) => {
-    try {
-        const requesterMembership = await checkProjectMembershipAccepted(req.params.projectId, req.user._id);
-        if (!requesterMembership || requesterMembership.role !== 'project_manager') {
-            return res.status(403).json({ status: 'fail', message: 'Only the project manager can change roles' });
-        }
-
-        const { role } = req.body;
-        const allowedRoles = ['project_manager', 'developer', 'tester', 'member'];
-        if (!allowedRoles.includes(role)) {
-            return res.status(400).json({ status: 'fail', message: `Role must be one of: ${allowedRoles.join(', ')}` });
-        }
-
-        const targetMembership = await ProjectMember.findOneAndUpdate(
-            { project: req.params.projectId, user: req.params.userId },
-            { role },
-            { new: true, runValidators: true }
+    const targetMembership =
+        await ProjectMember.findOneAndUpdate(
+            {
+                project: req.params.projectId,
+                user: req.params.userId
+            },
+            {
+                role
+            },
+            {
+                new: true,
+                runValidators: true
+            }
         );
 
-        if (!targetMembership) {
-            return res.status(404).json({ status: 'fail', message: 'Member not found in this project' });
-        }
-
-        res.status(200).json({ status: 'success', data: { membership: targetMembership } });
-    } catch (err) {
-        res.status(400).json({ status: 'fail', message: err.message });
+    if (!targetMembership) {
+        return next(
+            new AppError(
+                'Member not found in this project',
+                404
+            )
+        );
     }
-};
 
-
-exports.getProjectMembers = async (req, res) => {
-    try {
-        const membership = await checkProjectMembershipAccepted(req.params.projectId, req.user._id);
-        if (!membership) {
-            return res.status(403).json({ status: 'fail', message: 'You are not a member of this project' });
+    res.status(200).json({
+        status: 'success',
+        data: {
+            membership: targetMembership
         }
+    });
 
-        const members = await ProjectMember.find({
-            project: req.params.projectId,
-            status: 'accepted'
-        }).populate('user', 'name email');
+});
 
-        res.status(200).json({ status: 'success', results: members.length, data: { members } });
-    } catch (err) {
-        res.status(500).json({ status: 'fail', message: err.message });
+exports.getProjectMembers = catchAsync(async (req, res, next) => {
+
+    const membership =
+        await checkProjectMembershipAccepted(
+            req.params.projectId,
+            req.user._id
+        );
+
+    if (!membership) {
+        return next(
+            new AppError(
+                'You are not a member of this project',
+                403
+            )
+        );
     }
-};
+
+    const members = await ProjectMember.find({
+        project: req.params.projectId,
+        status: 'accepted'
+    })
+        .populate('user', 'name email')
+        .sort('role');
+
+    res.status(200).json({
+        status: 'success',
+        results: members.length,
+        data: {
+            members
+        }
+    });
+
+});
