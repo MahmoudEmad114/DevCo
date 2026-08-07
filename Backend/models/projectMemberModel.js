@@ -15,9 +15,15 @@ const projectMemberSchema = new mongoose.Schema(
     },
 
     role: {
-    type: String,
-    enum: ["project_manager", "developer", "tester", "member"],
-    default: "member",
+      type: String,
+      enum: ["project_manager", "developer", "tester", "member"],
+      default: "member",
+    },
+
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
     },
 
     joinedAt: {
@@ -33,9 +39,5 @@ const projectMemberSchema = new mongoose.Schema(
 projectMemberSchema.index({ project: 1, user: 1 }, { unique: true });
 projectMemberSchema.index({ user: 1 });
 
-const ProjectMember = mongoose.model(
-  "ProjectMember",
-  projectMemberSchema
-);
-
+const ProjectMember = mongoose.model("ProjectMember", projectMemberSchema);
 module.exports = ProjectMember;

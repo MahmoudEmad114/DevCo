@@ -16,6 +16,11 @@ const workspaceMemberSchema = new mongoose.Schema({
         enum: ['owner', 'admin', 'member'],
         default: 'member'
     },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        default: 'pending'
+    },
     joinedAt: {
         type: Date,
         default: Date.now
