@@ -3,6 +3,12 @@ const morgan = require("morgan");
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const taskRouter = require("./routes/taskRoutes");
+const memberRouter = require("./routes/memberRoutes");
+const issueRouter = require("./routes/issueRoutes");
+const notificationRouter = require("./routes/notificationRoutes");
+const projectRouter = require("./routes/projectRoutes");
+const workspaceRouter = require("./routes/workspaceRoutes");
 
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -10,31 +16,33 @@ const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
 app.use(express.json());
-
 app.use(express.static("public"));
 
 if (process.env.NODE_ENV === "development") {
-    app.use(morgan("dev"));
+  app.use(morgan("dev"));
 }
 
 app.use((req, res, next) => {
-    console.log("Hello from the middleware");
-    next();
+  console.log("Hello from the middleware");
+  next();
 });
-
 
 app.get("/test", (req, res) => {
-    res.json({ message: "Server is working" });
+  res.json({ message: "Server is working" });
 });
-
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/members", memberRouter);
+app.use("/api/v1/issues", issueRouter);
+app.use("/api/v1/notifications", notificationRouter);
+app.use("/api/v1/projects", projectRouter);
+app.use("/api/v1/workspaces", workspaceRouter);
 
 app.all("*", (req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
-
 
 app.use(globalErrorHandler);
 

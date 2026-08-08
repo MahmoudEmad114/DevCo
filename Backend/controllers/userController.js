@@ -2,7 +2,20 @@ const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
-// get user
+// Filter allowed fields for update
+const filterObj = (obj, ...allowedFields) => {
+    const newObj = {};
+
+    Object.keys(obj).forEach((el) => {
+        if (allowedFields.includes(el)) {
+            newObj[el] = obj[el];
+        }
+    });
+
+    return newObj;
+};
+
+// Get user by ID
 exports.getUser = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.params.id);
 
@@ -18,7 +31,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
     });
 });
 
-// get current logged in user
+// Get current logged-in user
 exports.getMe = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.user.id);
 
@@ -34,7 +47,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
     });
 });
 
-// get all users
+// Get all users
 exports.getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find();
 
@@ -47,7 +60,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     });
 });
 
-// search users
+// Search users
 exports.searchUsers = catchAsync(async (req, res, next) => {
     const keyword = req.query.keyword;
 
@@ -71,16 +84,32 @@ exports.searchUsers = catchAsync(async (req, res, next) => {
     });
 });
 
-// update current user
+// Update current user
 exports.updateMe = catchAsync(async (req, res, next) => {
+    if (req.body.password || req.body.passwordConfirm) {
+        return next(
+            new AppError(
+                "This route is not for password updates. Please use /updateMyPassword",
+                400
+            )
+        );
+    }
+
+    const filteredBody = filterObj(
+        req.body,
+        "name",
+        "email",
+        "bio",
+        "skills"
+    );
+
+    if (req.file) {
+        filteredBody.photo = req.file.filename;
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
         req.user.id,
-        {
-            name: req.body.name,
-            bio: req.body.bio,
-            skills: req.body.skills,
-            ...(req.file && { photo: req.file.filename }),
-        },
+        filteredBody,
         {
             new: true,
             runValidators: true,
@@ -99,7 +128,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     });
 });
 
-// delete current user (soft delete)
+// Delete current user (soft delete)
 exports.deleteMe = catchAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(req.user.id, {
         isActive: false,
@@ -111,7 +140,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     });
 });
 
-// upload photo
+// Upload photo
 exports.uploadPhoto = catchAsync(async (req, res, next) => {
     if (!req.file) {
         return next(new AppError("Please upload an image", 400));
@@ -127,6 +156,10 @@ exports.uploadPhoto = catchAsync(async (req, res, next) => {
             runValidators: true,
         }
     );
+
+    if (!updatedUser) {
+        return next(new AppError("User not found", 404));
+    }
 
     res.status(200).json({
         status: "success",
