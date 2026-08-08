@@ -4,7 +4,7 @@ const ProjectMember = require('../models/projectMemberModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
+const { createNotificationHelper } = require('./notificationController');
 const checkProjectMembership = async (projectId, userId) => {
     return await ProjectMember.findOne({
         project: projectId,
@@ -336,6 +336,15 @@ exports.assignTask = catchAsync(async (req, res, next) => {
         }
     ).populate('assignedTo', 'name email');
 
+    await createNotificationHelper({
+        recipient: assignedTo,
+        sender: req.user._id,
+        type: 'task-assigned',
+        message: `${req.user.name} assigned you a task: ${task.title}`,
+        relatedItem: task._id,
+        relatedItemType: 'Task'
+    });
+
     res.status(200).json({
         status: 'success',
         data: {
@@ -446,6 +455,17 @@ exports.changeStatus = catchAsync(async (req, res, next) => {
             runValidators: true
         }
     );
+
+    if (task.assignedTo) {
+        await createNotificationHelper({
+            recipient: task.assignedTo,
+            sender: req.user._id,
+            type: 'status-changed',
+            message: `${req.user.name} changed the status of task "${task.title}" to ${status}`,
+            relatedItem: task._id,
+            relatedItemType: 'Task'
+        });
+    }
 
     res.status(200).json({
         status: 'success',

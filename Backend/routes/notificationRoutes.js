@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get('/', notificationController.getMyNotifications);
-
+  router.post('/', notificationController.createNotification);  //جديد
 router.patch('/mark-all-read', notificationController.markAllAsRead);
 router.patch('/:id/mark-read', notificationController.markAsRead);
 

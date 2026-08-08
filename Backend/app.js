@@ -8,6 +8,8 @@ const notificationRouter = require('./routes/notificationRoutes');
 const userRouter = require('./routes/userRoutes');
 const projectRouter = require('./routes/projectRoutes');
 const workspaceRouter = require('./routes/workspaceRoutes');
+const chatRouter = require('./routes/chatRoutes');
+const commentRouter = require('./routes/commentRoutes');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -37,6 +39,8 @@ app.use('/api/v1/notifications', notificationRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/workspaces', workspaceRouter);
+app.use('/api/v1/chat', chatRouter);
+app.use('/api/v1/comments', commentRouter);
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

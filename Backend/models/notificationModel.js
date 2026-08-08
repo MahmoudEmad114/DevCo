@@ -24,14 +24,14 @@ const notificationSchema = new mongoose.Schema({
         trim: true,
         maxlength: [500, 'Notification message cannot exceed 500 characters']
     },
-    // this can point to a Task, Issue, Comment or Project depending on relatedItemType
+    // this can point to a Task, Issue, Comment, Project or Workspace depending on relatedItemType
     relatedItem: {
         type: mongoose.Schema.Types.ObjectId,
         refPath: 'relatedItemType'
     },
     relatedItemType: {
         type: String,
-        enum: ['Task', 'Issue', 'Comment', 'Project']
+        enum: ['Task', 'Issue', 'Comment', 'Project', 'Workspace']
     },
     isRead: {
         type: Boolean,

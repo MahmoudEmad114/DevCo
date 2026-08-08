@@ -4,6 +4,8 @@ const Issue = require('../models/issueModel');
 const ProjectMember = require('../models/projectMemberModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const { createNotificationHelper } = require('./notificationController');
+
 
 // need to figure out which project the comment's target actually belongs to
 // before we can check if the user is even allowed to comment on it
@@ -49,6 +51,26 @@ exports.createComment = catchAsync(async (req, res, next) => {
         targetType,
         targetId
     });
+
+    let target;
+    if (targetType === 'Task') {
+        target = await Task.findById(targetId);
+    } else if (targetType === 'Issue') {
+        target = await Issue.findById(targetId);
+    }
+
+    const recipientId = target?.assignedTo || target?.reportedBy || target?.createdBy;
+
+    if (recipientId && recipientId.toString() !== req.user._id.toString()) {
+        await createNotificationHelper({
+            recipient: recipientId,
+            sender: req.user._id,
+            type: 'comment-added',
+            message: `${req.user.name} commented on your ${targetType.toLowerCase()}`,
+            relatedItem: comment._id,
+            relatedItemType: 'Comment'
+        });
+    }
 
     res.status(201).json({ status: 'success', data: { comment } });
 });

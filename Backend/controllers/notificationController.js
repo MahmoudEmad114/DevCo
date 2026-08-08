@@ -101,3 +101,40 @@ exports.deleteNotification = catchAsync(async (req, res, next) => {
     });
 
 });
+
+
+
+exports.createNotification = catchAsync(async (req, res, next) => {
+
+    const { recipient, sender, type, message, relatedItem, relatedItemType } = req.body;
+
+    const notification = await Notification.create({
+        recipient,
+        sender: sender || req.user._id,
+        type,
+        message,
+        relatedItem,
+        relatedItemType
+    });
+
+    res.status(201).json({
+        status: 'success',
+        data: {
+            notification
+        }
+    });
+
+});
+
+
+// Helper function - تُستخدم داخليًا من controllers تانية (مش route)
+exports.createNotificationHelper = async ({ recipient, sender, type, message, relatedItem, relatedItemType }) => {
+    return await Notification.create({
+        recipient,
+        sender,
+        type,
+        message,
+        relatedItem,
+        relatedItemType
+    });
+};

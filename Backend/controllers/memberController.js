@@ -4,7 +4,7 @@ const Workspace = require('../models/workspaceModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
+const { createNotificationHelper } = require('./notificationController');
 const checkWorkspaceMembership = async (workspaceId, userId) => {
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) return null;
@@ -77,6 +77,15 @@ exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
         user: userId,
         role: 'member',
         status: 'pending'
+    });
+
+    await createNotificationHelper({
+        recipient: userId,
+        sender: req.user._id,
+        type: 'workspace-invitation',
+        message: `${req.user.name} invited you to join a workspace`,
+        relatedItem: req.params.workspaceId,
+        relatedItemType: 'Workspace'
     });
 
     res.status(201).json({
@@ -340,6 +349,15 @@ exports.inviteToProject = catchAsync(async (req, res, next) => {
         status: 'pending'
     });
 
+    await createNotificationHelper({
+        recipient: userId,
+        sender: req.user._id,
+        type: 'workspace-invitation',
+        message: `${req.user.name} invited you to join a project`,
+        relatedItem: req.params.projectId,
+        relatedItemType: 'Project'
+    });
+
     res.status(201).json({
         status: 'success',
         data: {
@@ -568,3 +586,6 @@ exports.getProjectMembers = catchAsync(async (req, res, next) => {
     });
 
 });
+
+
+

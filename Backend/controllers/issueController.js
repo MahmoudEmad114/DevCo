@@ -1,6 +1,6 @@
 const Issue = require('../models/issueModel');
 const ProjectMember = require('../models/projectMemberModel');
-
+const { createNotificationHelper } = require('./notificationController');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -430,6 +430,16 @@ exports.assignIssue = catchAsync(async (req, res, next) => {
     )
         .populate('assignedTo', 'name email')
         .populate('reportedBy', 'name email');
+    
+await createNotificationHelper({
+    recipient: assignedTo,
+    sender: req.user._id,
+    type: 'issue-assigned',
+    message: `${req.user.name} assigned you an issue: ${updatedIssue.title}`,
+    relatedItem: updatedIssue._id,
+    relatedItemType: 'Issue'
+});
+
 
     res.status(200).json({
 
@@ -506,6 +516,18 @@ exports.changeIssueStatus = catchAsync(async (req, res, next) => {
     )
         .populate('assignedTo', 'name email')
         .populate('reportedBy', 'name email');
+
+
+        if (updatedIssue.assignedTo) {
+    await createNotificationHelper({
+        recipient: updatedIssue.assignedTo._id,
+        sender: req.user._id,
+        type: 'status-changed',
+        message: `${req.user.name} changed the status of issue "${updatedIssue.title}" to ${status}`,
+        relatedItem: updatedIssue._id,
+        relatedItemType: 'Issue'
+    });
+}
 
     res.status(200).json({
 
