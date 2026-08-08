@@ -208,7 +208,6 @@ exports.getTask = catchAsync(async (req, res, next) => {
 exports.updateTask = catchAsync(async (req, res, next) => {
 
     const existingTask = await Task.findById(req.params.id);
-    const oldAssignedTo = existingTask.assignedTo?.toString();
 
     if (!existingTask) {
         return next(
@@ -218,6 +217,7 @@ exports.updateTask = catchAsync(async (req, res, next) => {
             )
         );
     }
+    const oldAssignedTo = existingTask.assignedTo?.toString();
 
     const membership = await checkProjectMembership(
         existingTask.project,
@@ -390,10 +390,6 @@ exports.assignTask = catchAsync(async (req, res, next) => {
 
 });
 
-// ======================================================
-// Task Status & Priority
-// ======================================================
-
 exports.changePriority = catchAsync(async (req, res, next) => {
 
     const existingTask = await Task.findById(req.params.id);
@@ -531,9 +527,6 @@ exports.deleteTask = catchAsync(async (req, res, next) => {
 
 });
 
-// ======================================================
-// Subtasks
-// ======================================================
 
 exports.createSubtask = catchAsync(async (req, res, next) => {
 
