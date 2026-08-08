@@ -1,12 +1,9 @@
 const Issue = require('../models/issueModel');
 const ProjectMember = require('../models/projectMemberModel');
 
+const createNotification = require('../utils/notification');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
-// ======================================================
-// Helpers
-// ======================================================
 
 const checkProjectMembership = async (projectId, userId) => {
 
@@ -40,10 +37,6 @@ const checkIssueMembership = async (issueId, userId) => {
     };
 
 };
-
-// ======================================================
-// Create Issue
-// ======================================================
 
 exports.createIssue = catchAsync(async (req, res, next) => {
 
@@ -81,7 +74,6 @@ exports.createIssue = catchAsync(async (req, res, next) => {
     }
 
     const issue = await Issue.create({
-
         title: req.body.title,
         description: req.body.description,
         project: req.body.project,
@@ -91,6 +83,19 @@ exports.createIssue = catchAsync(async (req, res, next) => {
         severity: req.body.severity
 
     });
+
+    if (req.body.assignedTo) {
+        const io = req.app.get('io');
+
+        await createNotification({
+            recipient: req.body.assignedTo,
+            sender: req.user._id,
+            type: 'issue-assigned',
+            message: `You have been assigned to issue: ${issue.title}`,
+            relatedItem: issue._id,
+            relatedItemType: 'Issue'
+        }, io);
+    }
 
     res.status(201).json({
 
@@ -102,10 +107,6 @@ exports.createIssue = catchAsync(async (req, res, next) => {
     });
 
 });
-
-// ======================================================
-// Get All Issues
-// ======================================================
 
 exports.getAllIssues = catchAsync(async (req, res, next) => {
 
@@ -167,10 +168,6 @@ exports.getAllIssues = catchAsync(async (req, res, next) => {
 
 });
 
-// ======================================================
-// Get Single Issue
-// ======================================================
-
 exports.getIssue = catchAsync(async (req, res, next) => {
 
     const result = await checkIssueMembership(
@@ -229,10 +226,6 @@ exports.getIssue = catchAsync(async (req, res, next) => {
 
 });
 
-// ======================================================
-// Update Issue
-// ======================================================
-
 exports.updateIssue = catchAsync(async (req, res, next) => {
 
     const { issue, membership } = await checkIssueMembership(
@@ -277,6 +270,15 @@ exports.updateIssue = catchAsync(async (req, res, next) => {
 
     }
 
+    const oldAssignee = issue.assignedTo
+        ? issue.assignedTo.toString()
+        : null;
+
+    const newAssignee = req.body.assignedTo
+        ? req.body.assignedTo.toString()
+        : null;
+
+
     const allowedFields = [
         'title',
         'description',
@@ -289,25 +291,51 @@ exports.updateIssue = catchAsync(async (req, res, next) => {
 
     allowedFields.forEach(field => {
 
-        if (req.body[field] !== undefined)
+        if (req.body[field] !== undefined) {
             updates[field] = req.body[field];
+        }
 
     });
 
-    const updatedIssue = await Issue.findByIdAndUpdate(
 
+    const updatedIssue = await Issue.findByIdAndUpdate(
         req.params.id,
         updates,
-
         {
-            new: true,
+            returnDocument: 'after',
             runValidators: true
         }
-
     )
-
         .populate('reportedBy', 'name email')
         .populate('assignedTo', 'name email');
+
+    if (
+        req.body.assignedTo !== undefined &&
+        oldAssignee !== newAssignee &&
+        newAssignee
+    ) {
+
+        const io = req.app.get('io');
+
+        await createNotification({
+
+            recipient: newAssignee,
+
+            sender: req.user._id,
+
+            type: 'issue-assigned',
+
+            message:
+                `You have been assigned to issue: ${updatedIssue.title}`,
+
+            relatedItem: updatedIssue._id,
+
+            relatedItemType: 'Issue'
+
+        }, io);
+
+    }
+
 
     res.status(200).json({
 
@@ -320,9 +348,6 @@ exports.updateIssue = catchAsync(async (req, res, next) => {
     });
 
 });
-// ======================================================
-// Delete Issue
-// ======================================================
 
 exports.deleteIssue = catchAsync(async (req, res, next) => {
 
@@ -359,9 +384,6 @@ exports.deleteIssue = catchAsync(async (req, res, next) => {
     });
 
 });
-// ======================================================
-// Assign Issue
-// ======================================================
 
 exports.assignIssue = catchAsync(async (req, res, next) => {
 
@@ -414,22 +436,35 @@ exports.assignIssue = catchAsync(async (req, res, next) => {
         );
     }
 
+    const oldAssignee = issue.assignedTo?.toString();
+    const newAssignee = assignedTo.toString();
+
     const updatedIssue = await Issue.findByIdAndUpdate(
-
         req.params.id,
-
         {
             assignedTo
         },
-
         {
-            new: true,
+            returnDocument: 'after',
             runValidators: true
         }
-
     )
         .populate('assignedTo', 'name email')
         .populate('reportedBy', 'name email');
+
+    if (oldAssignee !== newAssignee) {
+
+        const io = req.app.get('io');
+
+        await createNotification({
+            recipient: assignedTo,
+            sender: req.user._id,
+            type: 'issue-assigned',
+            message: `You have been assigned to issue: ${issue.title}`,
+            relatedItem: issue._id,
+            relatedItemType: 'Issue'
+        }, io);
+    }
 
     res.status(200).json({
 
@@ -442,10 +477,6 @@ exports.assignIssue = catchAsync(async (req, res, next) => {
     });
 
 });
-
-// ======================================================
-// Change Issue Status
-// ======================================================
 
 exports.changeIssueStatus = catchAsync(async (req, res, next) => {
 
@@ -490,6 +521,7 @@ exports.changeIssueStatus = catchAsync(async (req, res, next) => {
         );
     }
 
+    const oldStatus = issue.status;
     const updatedIssue = await Issue.findByIdAndUpdate(
 
         req.params.id,
@@ -499,13 +531,30 @@ exports.changeIssueStatus = catchAsync(async (req, res, next) => {
         },
 
         {
-            new: true,
+            returnDocument: 'after',
             runValidators: true
         }
 
     )
         .populate('assignedTo', 'name email')
         .populate('reportedBy', 'name email');
+
+    if (
+        oldStatus !== status &&
+        issue.assignedTo
+    ) {
+
+        const io = req.app.get('io');
+
+        await createNotification({
+            recipient: issue.assignedTo,
+            sender: req.user._id,
+            type: 'status-changed',
+            message: `Issue "${issue.title}" status changed from ${oldStatus} to ${status}`,
+            relatedItem: issue._id,
+            relatedItemType: 'Issue'
+        }, io);
+    }
 
     res.status(200).json({
 

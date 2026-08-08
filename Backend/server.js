@@ -1,16 +1,19 @@
-const mongoose = require('mongoose')
-const dotenv = require('dotenv')
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const http = require('http');
+const { Server } = require('socket.io');
+const initializeSocket = require('./sockets/socket')
+const socketAuth = require('./middlewares/socketAuth');
 
 process.on('uncaughtException', err => {
-    // handled exception error 
-    // cl(x) => but x is not defined yet!
     console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
     console.log(err.name, err.message);
     process.exit(1);
 });
 
-dotenv.config({ path: './.env' })
-const app = require('./app')
+dotenv.config({ path: './.env' });
+
+const app = require('./app');
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -18,17 +21,31 @@ mongoose
     .connect(MONGO_URI)
     .then(() => {
         console.log('DB connection successful!');
-    })
+    });
 
 const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CLIENT_URL || 'http://localhost:4200',
+        credentials: true
+    }
+});
+
+app.set('io', io)
+io.use(socketAuth);
+initializeSocket(io);
+
+server.listen(port, () => {
     console.log(`App running on port ${port}...`);
-})
+});
 
 process.on('unhandledRejection', err => {
-    // handled server error 
     console.log('UNHANDLED REJECTION! 💥 Shutting down...');
     console.log(err.name, err.message);
+
     server.close(() => {
         process.exit(1);
     });

@@ -1,3 +1,5 @@
 node_modules/
 .env
 ./.vscode
+socketTest.js
+socketTest2.js

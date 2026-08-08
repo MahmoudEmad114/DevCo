@@ -1,11 +1,8 @@
 const Notification = require('../models/notificationModel');
+const createNotification = require('../utils/notification');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
-// ======================================================
-// Notifications
-// ======================================================
 
 exports.getMyNotifications = catchAsync(async (req, res, next) => {
 
