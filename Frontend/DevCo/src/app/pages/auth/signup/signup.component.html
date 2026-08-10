@@ -1,0 +1,117 @@
+<div class="signup-page">
+  <div class="signup-card">
+    <div class="signup-header">
+      <h1>Create your account</h1>
+
+      <p>Join DevCollab and start collaborating</p>
+    </div>
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      <!-- Name -->
+
+      <div class="form-group">
+        <label for="name"> Name </label>
+
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter your name"
+        />
+
+        <small
+          *ngIf="
+            signupForm.get('name')?.touched && signupForm.get('name')?.invalid
+          "
+        >
+          Name must be between 2 and 50 characters.
+        </small>
+      </div>
+
+      <!-- Email -->
+
+      <div class="form-group">
+        <label for="email"> Email </label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+
+        <small
+          *ngIf="
+            signupForm.get('email')?.touched && signupForm.get('email')?.invalid
+          "
+        >
+          Please enter a valid email.
+        </small>
+      </div>
+
+      <!-- Password -->
+
+      <div class="form-group">
+        <label for="password"> Password </label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Create a password"
+        />
+
+        <small
+          *ngIf="
+            signupForm.get('password')?.touched &&
+            signupForm.get('password')?.invalid
+          "
+        >
+          Password must be at least 8 characters.
+        </small>
+      </div>
+
+      <!-- Confirm Password -->
+
+      <div class="form-group">
+        <label for="passwordConfirm"> Confirm Password </label>
+
+        <input
+          id="passwordConfirm"
+          type="password"
+          formControlName="passwordConfirm"
+          placeholder="Confirm your password"
+        />
+
+        <small
+          *ngIf="
+            signupForm.get('passwordConfirm')?.touched &&
+            signupForm.get('passwordConfirm')?.invalid
+          "
+        >
+          Please confirm your password.
+        </small>
+      </div>
+
+      <!-- Error -->
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit -->
+
+      <button type="submit" [disabled]="isLoading">
+        <span *ngIf="!isLoading"> Create Account </span>
+
+        <span *ngIf="isLoading"> Creating account... </span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      <span> Already have an account? </span>
+
+      <a routerLink="/login"> Login </a>
+    </div>
+  </div>
+</div>

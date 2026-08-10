@@ -1,5 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
+
 const taskRouter = require('./routes/taskRoutes');
 const memberRouter = require('./routes/memberRoutes');
 const authRouter = require('./routes/authRoutes');
@@ -22,6 +24,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:4200'
+}));
 
 app.use((req, res, next) => {
     console.log('Hello from the middleware');
