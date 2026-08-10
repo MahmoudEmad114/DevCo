@@ -1,14 +1,16 @@
 const Task = require('../models/taskModel');
 const Subtask = require('../models/subtaskModel');
 const ProjectMember = require('../models/projectMemberModel');
+const createNotification = require('../utils/notification');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const { createNotificationHelper } = require('./notificationController');
+
 const checkProjectMembership = async (projectId, userId) => {
     return await ProjectMember.findOne({
         project: projectId,
-        user: userId
+        user: userId,
+        status: 'accepted'
     });
 };
 
@@ -29,10 +31,6 @@ const checkProjectMembershipCascade = async (taskId, userId) => {
         membership
     };
 };
-
-// ======================================================
-// Tasks
-// ======================================================
 
 exports.createTask = catchAsync(async (req, res, next) => {
 
@@ -55,6 +53,7 @@ exports.createTask = catchAsync(async (req, res, next) => {
         priority,
         dueDate
     } = req.body;
+
 
     if (assignedTo) {
 
@@ -84,6 +83,19 @@ exports.createTask = catchAsync(async (req, res, next) => {
         createdBy: req.user._id
     });
 
+    if (assignedTo) {
+        const io = req.app.get('io');
+
+        await createNotification({
+            recipient: assignedTo,
+            sender: req.user._id,
+            type: 'task-assigned',
+            message: `You have been assigned to task: ${task.title}`,
+            relatedItem: task._id,
+            relatedItemType: 'Task'
+        }, io);
+    }
+
     res.status(201).json({
         status: 'success',
         data: {
@@ -96,7 +108,8 @@ exports.createTask = catchAsync(async (req, res, next) => {
 exports.getAllTasks = catchAsync(async (req, res, next) => {
 
     const memberships = await ProjectMember.find({
-        user: req.user._id
+        user: req.user._id,
+        status: 'accepted'
     }).select('project');
 
     const projectIds = memberships.map(member => member.project);
@@ -191,6 +204,7 @@ exports.getTask = catchAsync(async (req, res, next) => {
 
 });
 
+
 exports.updateTask = catchAsync(async (req, res, next) => {
 
     const existingTask = await Task.findById(req.params.id);
@@ -203,6 +217,7 @@ exports.updateTask = catchAsync(async (req, res, next) => {
             )
         );
     }
+    const oldAssignedTo = existingTask.assignedTo?.toString();
 
     const membership = await checkProjectMembership(
         existingTask.project,
@@ -264,6 +279,24 @@ exports.updateTask = catchAsync(async (req, res, next) => {
         }
     );
 
+    const newAssignedTo = task.assignedTo?.toString();
+
+    if (
+        updates.assignedTo &&
+        oldAssignedTo !== newAssignedTo
+    ) {
+        const io = req.app.get('io');
+
+        await createNotification({
+            recipient: newAssignedTo,
+            sender: req.user._id,
+            type: 'task-assigned',
+            message: `You have been assigned to task: ${task.title}`,
+            relatedItem: task._id,
+            relatedItemType: 'Task'
+        }, io);
+    }
+
     res.status(200).json({
         status: 'success',
         data: {
@@ -272,6 +305,7 @@ exports.updateTask = catchAsync(async (req, res, next) => {
     });
 
 });
+
 
 exports.assignTask = catchAsync(async (req, res, next) => {
 
@@ -336,14 +370,16 @@ exports.assignTask = catchAsync(async (req, res, next) => {
         }
     ).populate('assignedTo', 'name email');
 
-    await createNotificationHelper({
+    const io = req.app.get('io');
+
+    await createNotification({
         recipient: assignedTo,
         sender: req.user._id,
         type: 'task-assigned',
-        message: `${req.user.name} assigned you a task: ${task.title}`,
+        message: `You have been assigned to task: ${task.title}`,
         relatedItem: task._id,
         relatedItemType: 'Task'
-    });
+    }, io);
 
     res.status(200).json({
         status: 'success',
@@ -353,10 +389,6 @@ exports.assignTask = catchAsync(async (req, res, next) => {
     });
 
 });
-
-// ======================================================
-// Task Status & Priority
-// ======================================================
 
 exports.changePriority = catchAsync(async (req, res, next) => {
 
@@ -456,17 +488,6 @@ exports.changeStatus = catchAsync(async (req, res, next) => {
         }
     );
 
-    if (task.assignedTo) {
-        await createNotificationHelper({
-            recipient: task.assignedTo,
-            sender: req.user._id,
-            type: 'status-changed',
-            message: `${req.user.name} changed the status of task "${task.title}" to ${status}`,
-            relatedItem: task._id,
-            relatedItemType: 'Task'
-        });
-    }
-
     res.status(200).json({
         status: 'success',
         data: {
@@ -506,9 +527,6 @@ exports.deleteTask = catchAsync(async (req, res, next) => {
 
 });
 
-// ======================================================
-// Subtasks
-// ======================================================
 
 exports.createSubtask = catchAsync(async (req, res, next) => {
 

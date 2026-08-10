@@ -67,22 +67,22 @@ exports.deleteMessage = catchAsync(async (req, res, next) => {
 // note: these don't get wrapped in catchAsync, that helper is built for
 // (req, res, next) style route handlers, not socket event handlers
 
-exports.joinRoom = (socket, projectId) => {
-    socket.join(projectId);
-};
+// exports.joinRoom = (socket, projectId) => {
+//     socket.join(projectId);
+// };
 
-exports.leaveRoom = (socket, projectId) => {
-    socket.leave(projectId);
-};
+// exports.leaveRoom = (socket, projectId) => {
+//     socket.leave(projectId);
+// };
 
-exports.typing = (socket, io, { projectId, userName }) => {
-    io.to(projectId).emit('typing', { userName });
-};
+// exports.typing = (socket, io, { projectId, userName }) => {
+//     io.to(projectId).emit('typing', { userName });
+// };
 
-exports.stopTyping = (socket, io, { projectId, userName }) => {
-    io.to(projectId).emit('stopTyping', { userName });
-};
+// exports.stopTyping = (socket, io, { projectId, userName }) => {
+//     io.to(projectId).emit('stopTyping', { userName });
+// };
 
-exports.newMessage = (io, projectId, message) => {
-    io.to(projectId).emit('newMessage', message);
-};
+// exports.newMessage = (io, projectId, message) => {
+//     io.to(projectId).emit('newMessage', message);
+// };

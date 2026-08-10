@@ -8,6 +8,7 @@ const notificationRouter = require('./routes/notificationRoutes');
 const userRouter = require('./routes/userRoutes');
 const projectRouter = require('./routes/projectRoutes');
 const workspaceRouter = require('./routes/workspaceRoutes');
+const dashboardRouter = require('./routes/dashboardRoutes');
 const chatRouter = require('./routes/chatRoutes');
 const commentRouter = require('./routes/commentRoutes');
 
@@ -32,15 +33,16 @@ app.get('/test', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/tasks', taskRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/workspaces', workspaceRouter);
 app.use('/api/v1/members', memberRouter);
+app.use('/api/v1/projects', projectRouter);
+app.use('/api/v1/tasks', taskRouter);
 app.use('/api/v1/issues', issueRouter);
 app.use('/api/v1/notifications', notificationRouter);
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/projects', projectRouter);
-app.use('/api/v1/workspaces', workspaceRouter);
+app.use('/api/v1/comment', commentRouter);
 app.use('/api/v1/chat', chatRouter);
-app.use('/api/v1/comments', commentRouter);
+app.use('/api/v1/dashboard', dashboardRouter);
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

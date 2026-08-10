@@ -1,14 +1,13 @@
 const Workspace = require('../models/workspaceModel');
 const WorkspaceMember = require('../models/workspaceMemberModel');
 const Project = require('../models/projectModel');
+const ProjectMember = require('../models/projectMemberModel');
+const Task = require('../models/taskModel');
+const Issue = require('../models/issueModel');
+const Message = require('../models/messageModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
-
-// ========================================
-// Create Workspace
-// ========================================
 
 exports.createWorkspace = catchAsync(async (req, res, next) => {
 
@@ -35,11 +34,6 @@ exports.createWorkspace = catchAsync(async (req, res, next) => {
         }
     });
 });
-
-
-// ========================================
-// Get All My Workspaces
-// ========================================
 
 exports.getAllWorkspaces = catchAsync(async (req, res, next) => {
 
@@ -76,11 +70,6 @@ exports.getAllWorkspaces = catchAsync(async (req, res, next) => {
         }
     });
 });
-
-
-// ========================================
-// Get Single Workspace
-// ========================================
 
 exports.getWorkspace = catchAsync(async (req, res, next) => {
 
@@ -123,11 +112,6 @@ exports.getWorkspace = catchAsync(async (req, res, next) => {
         }
     });
 });
-
-
-// ========================================
-// Update Workspace
-// ========================================
 
 exports.updateWorkspace = catchAsync(async (req, res, next) => {
 
@@ -185,11 +169,6 @@ exports.updateWorkspace = catchAsync(async (req, res, next) => {
     });
 });
 
-
-// ========================================
-// Delete Workspace
-// ========================================
-
 exports.deleteWorkspace = catchAsync(async (req, res, next) => {
 
     const workspace = await Workspace.findById(req.params.id);
@@ -215,15 +194,12 @@ exports.deleteWorkspace = catchAsync(async (req, res, next) => {
         );
     }
 
-    // Delete workspace members
-    await WorkspaceMember.deleteMany({
-        workspace: workspace._id
-    });
-
-    // Delete projects belonging to workspace
-    await Project.deleteMany({
-        workspace: workspace._id
-    });
+    await WorkspaceMember.deleteMany({ workspace: workspace._id });
+    await Project.deleteMany({ workspace: workspace._id });
+    await ProjectMember.deleteMany({ project: project._id });
+    await Task.deleteMany({ project: project._id });
+    await Issue.deleteMany({ project: project._id });
+    await Message.deleteMany({ project: project._id });
 
     await Workspace.findByIdAndDelete(req.params.id);
 
@@ -232,11 +208,6 @@ exports.deleteWorkspace = catchAsync(async (req, res, next) => {
         data: null
     });
 });
-
-
-// ========================================
-// Leave Workspace
-// ========================================
 
 exports.leaveWorkspace = catchAsync(async (req, res, next) => {
 
