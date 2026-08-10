@@ -352,6 +352,7 @@ exports.assignTask = catchAsync(async (req, res, next) => {
 
     if (!assigneeMembership) {
         return next(
+            
             new AppError(
                 'Cannot assign task to a user who is not a member of this project',
                 400
