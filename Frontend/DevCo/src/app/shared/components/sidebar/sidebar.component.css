@@ -1,0 +1,71 @@
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 14px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    margin-bottom: 35px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #111827;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav a,
+.sidebar-bottom a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 9px;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav a:hover,
+.sidebar-bottom a:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.nav a.active,
+.sidebar-bottom a.active {
+    background: #111827;
+    color: #ffffff;
+}
+
+.nav a span,
+.sidebar-bottom a span {
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}

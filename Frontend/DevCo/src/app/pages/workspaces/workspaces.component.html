@@ -1,0 +1,108 @@
+<div class="workspaces-page">
+  <div class="page-header">
+    <div>
+      <h1>Workspaces</h1>
+
+      <p>Manage your workspaces and collaboration teams.</p>
+    </div>
+
+    <button class="create-btn" (click)="openCreateModal()">
+      + Create Workspace
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading workspaces...</div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="!isLoading && !errorMessage && workspaces.length === 0"
+    class="empty"
+  >
+    <h3>No workspaces yet</h3>
+
+    <p>Create your first workspace to get started.</p>
+  </div>
+
+  <div *ngIf="!isLoading && workspaces.length > 0" class="workspace-grid">
+    <div
+      class="workspace-card"
+      *ngFor="let workspace of workspaces"
+      [routerLink]="['/workspaces', workspace._id]"
+    >
+      <div class="workspace-icon">
+        {{ workspace.name.charAt(0).toUpperCase() }}
+      </div>
+
+      <div class="workspace-info">
+        <h3>
+          {{ workspace.name }}
+        </h3>
+
+        <p>
+          {{ workspace.description || "No description" }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>Create Workspace</h2>
+
+        <p>Create a workspace for your team.</p>
+      </div>
+
+      <button class="close-btn" (click)="closeCreateModal()">×</button>
+    </div>
+
+    <div class="form-group">
+      <label> Workspace name </label>
+
+      <input
+        type="text"
+        [(ngModel)]="workspaceName"
+        placeholder="e.g. DevCollab Team"
+      />
+    </div>
+
+    <div class="form-group">
+      <label> Description </label>
+
+      <textarea
+        [(ngModel)]="workspaceDescription"
+        placeholder="Describe your workspace..."
+        rows="4"
+      ></textarea>
+    </div>
+
+    <div class="form-error" *ngIf="createError">
+      {{ createError }}
+    </div>
+
+    <div class="modal-actions">
+      <button
+        class="cancel-btn"
+        (click)="closeCreateModal()"
+        [disabled]="isCreating"
+      >
+        Cancel
+      </button>
+
+      <button
+        class="submit-btn"
+        (click)="createWorkspace()"
+        [disabled]="isCreating"
+      >
+        <span *ngIf="!isCreating"> Create Workspace </span>
+
+        <span *ngIf="isCreating"> Creating... </span>
+      </button>
+    </div>
+  </div>
+</div>

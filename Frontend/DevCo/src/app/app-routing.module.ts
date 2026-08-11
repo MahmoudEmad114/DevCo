@@ -4,10 +4,17 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { SignupComponent } from './pages/auth/signup/signup.component';
-import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
-import { IssuesComponent } from './pages/issues/issues.component';
-import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { ForgotPasswordComponent }
+  from './pages/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent }
+  from './pages/auth/reset-password/reset-password.component';
+
+import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';  
+
+import { WorkspacesComponent }
+  from './pages/workspaces/workspaces.component';
+
+import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/workspace-details.component';  
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
@@ -32,22 +39,29 @@ const routes: Routes = [
   },
 
   {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [AuthGuard],
-  },
+  path: '',
+  component: MainLayoutComponent,
+  canActivate: [AuthGuard],
+  children: [
 
-  {
-    path: 'issues',
-    component: IssuesComponent,
-    canActivate: [AuthGuard],
-  },
+    {
+      path: 'dashboard',
+      component: DashboardComponent
+    },
 
-  {
-    path: 'notifications',
-    component: NotificationsComponent,
-    canActivate: [AuthGuard],
-  },
+    {
+      path: 'workspaces',
+      component: WorkspacesComponent
+    },
+
+    {
+      path: 'workspaces/:id',
+      component: WorkspaceDetailsComponent
+    }
+
+   
+  ]
+},
 
   {
     path: '',

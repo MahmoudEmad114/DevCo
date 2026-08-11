@@ -194,12 +194,44 @@ exports.deleteWorkspace = catchAsync(async (req, res, next) => {
         );
     }
 
-    await WorkspaceMember.deleteMany({ workspace: workspace._id });
-    await Project.deleteMany({ workspace: workspace._id });
-    await ProjectMember.deleteMany({ project: project._id });
-    await Task.deleteMany({ project: project._id });
-    await Issue.deleteMany({ project: project._id });
-    await Message.deleteMany({ project: project._id });
+    // await WorkspaceMember.deleteMany({ workspace: workspace._id });
+    // await Project.deleteMany({ workspace: workspace._id });
+    // await ProjectMember.deleteMany({ project: project._id });
+    // await Task.deleteMany({ project: project._id });
+    // await Issue.deleteMany({ project: project._id });
+    // await Message.deleteMany({ project: project._id });
+
+    // await Workspace.findByIdAndDelete(req.params.id);
+
+    const projects = await Project.find({
+        workspace: workspace._id
+    }).select('_id');
+
+    const projectIds = projects.map(project => project._id);
+
+    await ProjectMember.deleteMany({
+        project: { $in: projectIds }
+    });
+
+    await Task.deleteMany({
+        project: { $in: projectIds }
+    });
+
+    await Issue.deleteMany({
+        project: { $in: projectIds }
+    });
+
+    await Message.deleteMany({
+        project: { $in: projectIds }
+    });
+
+    await Project.deleteMany({
+        workspace: workspace._id
+    });
+
+    await WorkspaceMember.deleteMany({
+        workspace: workspace._id
+    });
 
     await Workspace.findByIdAndDelete(req.params.id);
 

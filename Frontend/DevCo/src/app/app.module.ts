@@ -1,4 +1,7 @@
 import { NgModule } from '@angular/core';
+
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -9,14 +12,14 @@ import { LoginComponent } from './pages/auth/login/login.component';
 import { SignupComponent } from './pages/auth/signup/signup.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
-import { ResetPasswordComponent }
-  from './pages/auth/reset-password/reset-password.component';
+import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 
 import { ReactiveFormsModule } from '@angular/forms';
-import { IssuesComponent } from './pages/issues/issues.component';
-import { NotificationsComponent } from './pages/notifications/notifications.component';
-
-
+import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { WorkspacesComponent } from './pages/workspaces/workspaces.component';
+import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/workspace-details.component';
 
 @NgModule({
   declarations: [
@@ -26,13 +29,18 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
     SignupComponent,
     ResetPasswordComponent,
     ForgotPasswordComponent,
-    IssuesComponent,
-    NotificationsComponent
+    MainLayoutComponent,
+    SidebarComponent,
+    HeaderComponent,
+    WorkspacesComponent,
+    WorkspaceDetailsComponent,
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     AppRoutingModule
   ],
   providers: [
