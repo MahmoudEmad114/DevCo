@@ -11,6 +11,8 @@ router.get('/me', userController.getMe);
 router.patch('/updateMe', userController.uploadUserPhoto, userController.updateMe)
 router.delete('/deleteMe', userController.deleteMe)
 
+router.get('/search', userController.searchUsers);
+
 // router.use(authController.restrictTo('admin'))
 
 router
