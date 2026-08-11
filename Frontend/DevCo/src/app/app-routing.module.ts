@@ -8,6 +8,13 @@ import { ForgotPasswordComponent }
   from './pages/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent }
   from './pages/auth/reset-password/reset-password.component';
+
+import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';  
+
+import { WorkspacesComponent }
+  from './pages/workspaces/workspaces.component';
+
+import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/workspace-details.component';  
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
@@ -33,10 +40,29 @@ const routes: Routes = [
   },
 
   {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [AuthGuard]
-  },
+  path: '',
+  component: MainLayoutComponent,
+  canActivate: [AuthGuard],
+  children: [
+
+    {
+      path: 'dashboard',
+      component: DashboardComponent
+    },
+
+    {
+      path: 'workspaces',
+      component: WorkspacesComponent
+    },
+
+    {
+      path: 'workspaces/:id',
+      component: WorkspaceDetailsComponent
+    }
+
+   
+  ]
+},
 
   {
     path: '',
