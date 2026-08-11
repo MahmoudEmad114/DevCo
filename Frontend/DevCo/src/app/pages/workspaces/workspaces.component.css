@@ -1,0 +1,227 @@
+.workspaces-page {
+    padding: 30px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #111827;
+}
+
+.page-header p {
+    margin-top: 7px;
+    color: #6b7280;
+}
+
+.create-btn {
+    border: none;
+    background: #111827;
+    color: white;
+    padding: 11px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.workspace-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    transition: 0.2s;
+}
+
+.workspace-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.workspace-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    background: #111827;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.workspace-info h3 {
+    margin: 0 0 6px;
+}
+
+.workspace-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.loading,
+.error,
+.empty {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+}
+
+.error {
+    color: #dc2626;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+}
+
+.modal {
+    width: 450px;
+    max-width: calc(100% - 30px);
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    padding: 24px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    margin-bottom: 25px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #111827;
+}
+
+.modal-header p {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.close-btn {
+    border: none;
+    background: transparent;
+
+    font-size: 25px;
+    color: #6b7280;
+
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #111827;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-error {
+    color: #dc2626;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.cancel-btn,
+.submit-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.cancel-btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+}
+
+.submit-btn {
+    background: #111827;
+    color: #ffffff;
+    border: none;
+}
+
+.submit-btn:disabled,
+.cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.workspace-card {
+    cursor: pointer;
+}
