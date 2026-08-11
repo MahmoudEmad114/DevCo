@@ -7,8 +7,6 @@
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <!-- Email -->
-
       <div class="form-group">
         <label for="email"> Email </label>
 
@@ -27,8 +25,6 @@
           Please enter a valid email.
         </small>
       </div>
-
-      <!-- Password -->
 
       <div class="form-group">
         <label for="password"> Password </label>
@@ -50,19 +46,13 @@
         </small>
       </div>
 
-      <!-- Forgot Password -->
-
       <div class="forgot-password">
         <a routerLink="/forgot-password"> Forgot password? </a>
       </div>
 
-      <!-- Error -->
-
       <div class="error-message" *ngIf="errorMessage">
         {{ errorMessage }}
       </div>
-
-      <!-- Submit -->
 
       <button type="submit" [disabled]="isLoading">
         <span *ngIf="!isLoading"> Login </span>
@@ -78,4 +68,4 @@
     </div>
   </div>
 </div>
-<app-dashboard></app-dashboard>
+<!-- <app-dashboard></app-dashboard> -->
