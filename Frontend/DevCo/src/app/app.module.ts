@@ -13,6 +13,8 @@ import { ResetPasswordComponent }
   from './pages/auth/reset-password/reset-password.component';
 
 import { ReactiveFormsModule } from '@angular/forms';
+import { IssuesComponent } from './pages/issues/issues.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 
 
@@ -23,7 +25,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     DashboardComponent,
     SignupComponent,
     ResetPasswordComponent,
-    ForgotPasswordComponent
+    ForgotPasswordComponent,
+    IssuesComponent,
+    NotificationsComponent
   ],
   imports: [
     BrowserModule,

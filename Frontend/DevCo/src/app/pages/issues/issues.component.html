@@ -1,0 +1,43 @@
+<div class="issues-page">
+    <h2>Issues</h2>
+
+    <div *ngIf="isLoading">Loading issues...</div>
+
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && issues.length === 0">
+        No issues found.
+    </div>
+
+    <table *ngIf="!isLoading && issues.length > 0" class="issues-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Severity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let issue of issues">
+                <td>{{ issue.title }}</td>
+                <td>
+                    <select [value]="issue.status" (change)="onStatusChange(issue, $any($event.target).value)">
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </td>
+                <td>{{ issue.priority }}</td>
+                <td>{{ issue.severity }}</td>
+                <td>
+                    <button (click)="onDelete(issue)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
