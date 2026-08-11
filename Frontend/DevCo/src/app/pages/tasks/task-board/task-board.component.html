@@ -1,0 +1,40 @@
+<div class="task-board">
+
+  <div *ngIf="isLoading" class="loading">Loading tasks...</div>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div class="board-columns" *ngIf="!isLoading && !errorMessage">
+    <div class="column" *ngFor="let column of columns">
+
+      <div class="column-header">
+        <h3>{{ column.title }}</h3>
+        <span class="task-count">{{ column.tasks.length }}</span>
+      </div>
+
+      <div
+        class="column-body"
+        cdkDropList
+        [id]="'list-' + column.status"
+        [cdkDropListData]="column.tasks"
+        [cdkDropListConnectedTo]="connectedLists"
+        (cdkDropListDropped)="drop($event, column.status)">
+
+        <div class="task-card" *ngFor="let task of column.tasks" cdkDrag>
+          <h4>{{ task.title }}</h4>
+          <p *ngIf="task.description">{{ task.description }}</p>
+
+          <span class="priority-badge" [class]="'priority-' + task.priority">
+            {{ task.priority }}
+          </span>
+        </div>
+
+        <div *ngIf="column.tasks.length === 0" class="empty-column">
+          No tasks
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
