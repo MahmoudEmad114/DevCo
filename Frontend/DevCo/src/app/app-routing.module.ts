@@ -18,25 +18,24 @@ import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
   },
 
   {
-  path: 'signup',
-  component: SignupComponent
+    path: 'signup',
+    component: SignupComponent,
   },
 
   {
-  path: 'forgot-password',
-  component: ForgotPasswordComponent
+    path: 'forgot-password',
+    component: ForgotPasswordComponent,
   },
 
   {
-  path: 'reset-password/:token',
-  component: ResetPasswordComponent
+    path: 'reset-password/:token',
+    component: ResetPasswordComponent,
   },
 
   {
@@ -67,18 +66,17 @@ const routes: Routes = [
   {
     path: '',
     redirectTo: '/login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
 
   {
     path: '**',
-    redirectTo: '/login'
-  }
-
+    redirectTo: '/login',
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
