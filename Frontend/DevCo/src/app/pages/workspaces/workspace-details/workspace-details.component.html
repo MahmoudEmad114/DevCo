@@ -1,0 +1,89 @@
+<div class="workspace-details-page">
+  <div *ngIf="isLoading" class="state">Loading workspace...</div>
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="back-btn" (click)="goBack()">Back to Workspaces</button>
+  </div>
+
+  <div *ngIf="!isLoading && workspace" class="workspace-content">
+    <button class="back-link" (click)="goBack()">← Back to Workspaces</button>
+
+    <div class="workspace-header">
+      <div class="workspace-title">
+        <div class="workspace-icon">
+          {{ workspace.name.charAt(0).toUpperCase() }}
+        </div>
+
+        <div>
+          <h1>
+            {{ workspace.name }}
+          </h1>
+
+          <p>
+            {{ workspace.description || "No description available." }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-card">
+      <h2>Workspace Overview</h2>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label"> Workspace Name </span>
+
+          <strong>
+            {{ workspace.name }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Created </span>
+
+          <strong>
+            {{ workspace.createdAt | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Last Updated </span>
+
+          <strong>
+            {{ workspace.updatedAt | date: "mediumDate" }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="coming-section">
+      <div>
+        <span class="section-icon">◈</span>
+
+        <div>
+          <h3>Projects</h3>
+
+          <p>Projects inside this workspace will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="coming-section">
+      <div>
+        <span class="section-icon">👥</span>
+
+        <div>
+          <h3>Members</h3>
+
+          <p>Workspace members will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
