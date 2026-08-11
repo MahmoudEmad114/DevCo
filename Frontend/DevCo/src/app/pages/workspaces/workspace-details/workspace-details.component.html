@@ -1,9 +1,5 @@
 <div class="workspace-details-page">
-  <!-- Loading -->
-
   <div *ngIf="isLoading" class="state">Loading workspace...</div>
-
-  <!-- Error -->
 
   <div *ngIf="!isLoading && errorMessage" class="state error">
     <h3>Something went wrong</h3>
@@ -15,12 +11,8 @@
     <button class="back-btn" (click)="goBack()">Back to Workspaces</button>
   </div>
 
-  <!-- Workspace -->
-
   <div *ngIf="!isLoading && workspace" class="workspace-content">
     <button class="back-link" (click)="goBack()">← Back to Workspaces</button>
-
-    <!-- Header -->
 
     <div class="workspace-header">
       <div class="workspace-title">
@@ -39,8 +31,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Overview -->
 
     <div class="overview-card">
       <h2>Workspace Overview</h2>
@@ -71,8 +61,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Future Sections -->
 
     <div class="coming-section">
       <div>
