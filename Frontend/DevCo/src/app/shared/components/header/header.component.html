@@ -1,0 +1,32 @@
+<header class="header">
+  <div class="header-left">
+    <span class="page-label"> Workspace </span>
+  </div>
+
+  <div class="header-right">
+    <button class="notification-btn" routerLink="/notifications">🔔</button>
+
+    <div class="user-info">
+      <img
+        [src]="
+          user?.photo
+            ? 'http://localhost:3000/img/users/' + user?.photo
+            : 'assets/default-avatar.png'
+        "
+        alt="User"
+      />
+
+      <div class="user-text">
+        <strong>
+          {{ user?.name }}
+        </strong>
+
+        <span>
+          {{ user?.role }}
+        </span>
+      </div>
+    </div>
+
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+</header>
