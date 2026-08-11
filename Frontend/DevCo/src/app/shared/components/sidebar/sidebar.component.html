@@ -1,0 +1,18 @@
+<aside
+  [ngClass]="isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+  class="fixed inset-y-0 left-0 z-30 w-60 border-r border-gray-100 bg-white
+         pt-4 transition-transform duration-200 lg:static lg:translate-x-0"
+>
+  <nav class="flex flex-col gap-1 px-3">
+    <a
+      *ngFor="let item of navItems"
+      [routerLink]="item.path"
+      routerLinkActive="bg-indigo-50 text-indigo-600"
+      class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium
+             text-gray-600 hover:bg-gray-50 transition-colors"
+    >
+      <span class="h-1.5 w-1.5 rounded-full bg-current opacity-60"></span>
+      {{ item.label }}
+    </a>
+  </nav>
+</aside>
