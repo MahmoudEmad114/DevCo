@@ -26,10 +26,10 @@ const server = app.listen(port, () => {
 })
 
 process.on('unhandledRejection', err => {
-    // handled server error 
-    console.log('UNHANDLED REJECTION! 💥 Shutting down...');
-    console.log(err.name, err.message);
-    server.close(() => {
-        process.exit(1);
-    });
+console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+console.error(err.stack);
+
+server.close(() => {
+process.exit(1);
+});
 });

@@ -1,0 +1,292 @@
+<div class="dashboard-page">
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-state" *ngIf="!isLoading && errorMessage">
+    <h3>Something went wrong</h3>
+    <p>{{ errorMessage }}</p>
+
+    <button (click)="loadDashboard()">Try Again</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div *ngIf="!isLoading && dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div>
+        <span class="eyebrow">DEV COLLAB</span>
+
+        <h1>Welcome back 👋</h1>
+
+        <p>Here's what's happening across your projects.</p>
+      </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="overview-grid">
+      <div class="stat-card">
+        <div class="stat-icon">W</div>
+
+        <div>
+          <span>Workspaces</span>
+
+          <strong>
+            {{ dashboard.overview.totalWorkspaces }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">P</div>
+
+        <div>
+          <span>Projects</span>
+
+          <strong>
+            {{ dashboard.overview.totalProjects }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">T</div>
+
+        <div>
+          <span>Total Tasks</span>
+
+          <strong>
+            {{ dashboard.overview.totalTasks }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">I</div>
+
+        <div>
+          <span>Total Issues</span>
+
+          <strong>
+            {{ dashboard.overview.totalIssues }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Work -->
+    <div class="section-header">
+      <div>
+        <h2>My Work</h2>
+        <p>Your assigned tasks and issues.</p>
+      </div>
+    </div>
+
+    <div class="overview-grid small-grid">
+      <div class="mini-card">
+        <span>Assigned Tasks</span>
+
+        <strong>
+          {{ dashboard.overview.assignedTasks }}
+        </strong>
+      </div>
+
+      <div class="mini-card">
+        <span>Assigned Issues</span>
+
+        <strong>
+          {{ dashboard.overview.assignedIssues }}
+        </strong>
+      </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="status-grid">
+      <!-- Tasks -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Tasks</h3>
+            <span>Tasks by status</span>
+          </div>
+        </div>
+
+        <div class="status-list">
+          <div class="status-row">
+            <div>
+              <span class="status-dot todo"></span>
+              To Do
+            </div>
+
+            <strong>
+              {{ dashboard.tasks.byStatus.todo }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot progress"></span>
+              In Progress
+            </div>
+
+            <strong>
+              {{ dashboard.tasks.byStatus["in-progress"] }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot review"></span>
+              Review
+            </div>
+
+            <strong>
+              {{ dashboard.tasks.byStatus.review }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot testing"></span>
+              Testing
+            </div>
+
+            <strong>
+              {{ dashboard.tasks.byStatus.testing }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot done"></span>
+              Done
+            </div>
+
+            <strong>
+              {{ dashboard.tasks.byStatus.done }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues -->
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Issues</h3>
+            <span>Issues by status</span>
+          </div>
+        </div>
+
+        <div class="status-list">
+          <div class="status-row">
+            <div>
+              <span class="status-dot open"></span>
+              Open
+            </div>
+
+            <strong>
+              {{ dashboard.issues.byStatus.open }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot progress"></span>
+              In Progress
+            </div>
+
+            <strong>
+              {{ dashboard.issues.byStatus["in-progress"] }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot resolved"></span>
+              Resolved
+            </div>
+
+            <strong>
+              {{ dashboard.issues.byStatus.resolved }}
+            </strong>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="status-dot closed"></span>
+              Closed
+            </div>
+
+            <strong>
+              {{ dashboard.issues.byStatus.closed }}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="panel recent-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Recent Tasks</h3>
+          <span>Latest tasks across your projects.</span>
+        </div>
+      </div>
+
+      <div class="recent-item" *ngFor="let task of dashboard.recentTasks">
+        <div class="item-main">
+          <strong>
+            {{ task.title }}
+          </strong>
+
+          <span>
+            {{ task.project.name }}
+          </span>
+        </div>
+
+        <span class="badge" [ngClass]="task.status">
+          {{ task.status }}
+        </span>
+      </div>
+
+      <div class="empty-state" *ngIf="dashboard.recentTasks.length === 0">
+        No recent tasks.
+      </div>
+    </div>
+
+    <!-- Recent Issues -->
+    <div class="panel recent-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Recent Issues</h3>
+          <span>Latest issues across your projects.</span>
+        </div>
+      </div>
+
+      <div class="recent-item" *ngFor="let issue of dashboard.recentIssues">
+        <div class="item-main">
+          <strong>
+            {{ issue.title }}
+          </strong>
+
+          <span>
+            {{ issue.project.name }}
+          </span>
+        </div>
+
+        <span class="badge" [ngClass]="issue.status">
+          {{ issue.status }}
+        </span>
+      </div>
+
+      <div class="empty-state" *ngIf="dashboard.recentIssues.length === 0">
+        No recent issues.
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,265 @@
+<div class="workspace-details-page">
+
+  <div *ngIf="isLoading" class="state">
+    Loading workspace...
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="back-btn" (click)="goBack()">
+      Back to Workspaces
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && workspace" class="workspace-content">
+
+    <button class="back-link" (click)="goBack()">
+      ← Back to Workspaces
+    </button>
+
+    <div class="workspace-header">
+
+      <div class="workspace-title">
+
+        <div class="workspace-icon">
+          {{ workspace.name.charAt(0).toUpperCase() }}
+        </div>
+
+        <div>
+          <h1>
+            {{ workspace.name }}
+          </h1>
+
+          <p>
+            {{ workspace.description || "No description available." }}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="overview-card">
+
+      <h2>Workspace Overview</h2>
+
+      <div class="info-grid">
+
+        <div class="info-item">
+
+          <span class="label">
+            Workspace Name
+          </span>
+
+          <strong>
+            {{ workspace.name }}
+          </strong>
+
+        </div>
+
+        <div class="info-item">
+
+          <span class="label">
+            Created
+          </span>
+
+          <strong>
+            {{ workspace.createdAt | date: "mediumDate" }}
+          </strong>
+
+        </div>
+
+        <div class="info-item">
+
+          <span class="label">
+            Last Updated
+          </span>
+
+          <strong>
+            {{ workspace.updatedAt | date: "mediumDate" }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Projects -->
+
+    <div class="coming-section">
+
+      <div>
+
+        <span class="section-icon">
+          ◈
+        </span>
+
+        <div>
+
+          <h3>
+            Projects
+          </h3>
+
+          <p>
+            Projects inside this workspace will appear here.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Members -->
+
+    <div class="coming-section members-section">
+
+      <div>
+
+        <span class="section-icon">
+          👥
+        </span>
+
+        <div class="members-content">
+
+          <h3>
+            Members
+          </h3>
+
+          <p>
+            Search for a user by name or email to invite them.
+          </p>
+
+          <!-- Invite Member -->
+
+          <div class="invite-box">
+
+            <!-- Search -->
+
+            <div class="search-row">
+
+              <input
+                type="text"
+                [(ngModel)]="searchKeyword"
+                placeholder="Search by name or email"
+                (keyup.enter)="searchUsers()"
+              />
+
+              <button
+                type="button"
+                class="search-btn"
+                (click)="searchUsers()"
+                [disabled]="isSearching"
+              >
+                {{ isSearching ? 'Searching...' : 'Search' }}
+              </button>
+
+            </div>
+
+            <!-- Search Error -->
+
+            <p
+              *ngIf="searchError"
+              class="error-message"
+            >
+              {{ searchError }}
+            </p>
+
+            <!-- Search Results -->
+
+            <div
+              *ngIf="users.length > 0"
+              class="search-results"
+            >
+
+              <div
+                *ngFor="let user of users"
+                class="user-result"
+                [class.selected]="selectedUser?._id === user._id"
+                (click)="selectUser(user)"
+              >
+
+                <div class="user-info">
+
+                  <strong>
+                    {{ user.name }}
+                  </strong>
+
+                  <span>
+                    {{ user.email }}
+                  </span>
+
+                </div>
+
+                <span
+                  *ngIf="selectedUser?._id === user._id"
+                  class="selected-label"
+                >
+                  Selected
+                </span>
+
+              </div>
+
+            </div>
+
+            <!-- Selected User -->
+
+            <div
+              *ngIf="selectedUser"
+              class="selected-user"
+            >
+
+              <p>
+                Invite
+                <strong>
+                  {{ selectedUser.name }}
+                </strong>
+                ({{ selectedUser.email }})?
+              </p>
+
+              <button
+                type="button"
+                class="invite-btn"
+                (click)="inviteMember()"
+                [disabled]="isInviting"
+              >
+                {{ isInviting ? 'Sending...' : 'Invite Member' }}
+              </button>
+
+            </div>
+
+            <!-- Success Message -->
+
+            <p
+              *ngIf="inviteMessage"
+              class="success-message"
+            >
+              {{ inviteMessage }}
+            </p>
+
+            <!-- Invite Error -->
+
+            <p
+              *ngIf="inviteError"
+              class="error-message"
+            >
+              {{ inviteError }}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
