@@ -1,40 +1,57 @@
-<div class="task-board">
+<div class="task-board-wrapper">
 
-  <div *ngIf="isLoading" class="loading">Loading tasks...</div>
+  <div class="task-board">
 
-  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+    <div *ngIf="isLoading" class="loading">Loading tasks...</div>
 
-  <div class="board-columns" *ngIf="!isLoading && !errorMessage">
-    <div class="column" *ngFor="let column of columns">
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
-      <div class="column-header">
-        <h3>{{ column.title }}</h3>
-        <span class="task-count">{{ column.tasks.length }}</span>
-      </div>
+    <div class="board-columns" *ngIf="!isLoading && !errorMessage">
+      <div class="column" *ngFor="let column of columns">
 
-      <div
-        class="column-body"
-        cdkDropList
-        [id]="'list-' + column.status"
-        [cdkDropListData]="column.tasks"
-        [cdkDropListConnectedTo]="connectedLists"
-        (cdkDropListDropped)="drop($event, column.status)">
-
-        <div class="task-card" *ngFor="let task of column.tasks" cdkDrag>
-          <h4>{{ task.title }}</h4>
-          <p *ngIf="task.description">{{ task.description }}</p>
-
-          <span class="priority-badge" [class]="'priority-' + task.priority">
-            {{ task.priority }}
-          </span>
+        <div class="column-header">
+          <h3>{{ column.title }}</h3>
+          <span class="task-count">{{ column.tasks.length }}</span>
         </div>
 
-        <div *ngIf="column.tasks.length === 0" class="empty-column">
-          No tasks
-        </div>
-      </div>
+        <div
+          class="column-body"
+          cdkDropList
+          [id]="'list-' + column.status"
+          [cdkDropListData]="column.tasks"
+          [cdkDropListConnectedTo]="connectedLists"
+          (cdkDropListDropped)="drop($event, column.status)">
 
+          <div
+            class="task-card"
+            *ngFor="let task of column.tasks"
+            cdkDrag
+            (click)="openTaskDetail(task)">
+            <h4>{{ task.title }}</h4>
+            <p *ngIf="task.description">{{ task.description }}</p>
+
+            <span class="priority-badge" [class]="'priority-' + task.priority">
+              {{ task.priority }}
+            </span>
+          </div>
+
+          <div *ngIf="column.tasks.length === 0" class="empty-column">
+            No tasks
+          </div>
+        </div>
+
+      </div>
     </div>
+
   </div>
+
+  <!-- جديد - الـ panel بتاع التفاصيل، بيظهر بس لو فيه taskId متختار -->
+  <app-task-detail
+    *ngIf="selectedTaskId"
+    [taskId]="selectedTaskId"
+    [projectId]="projectId"
+    (closed)="closeTaskDetail()"
+    (taskUpdated)="onTaskUpdated()">
+  </app-task-detail>
 
 </div>

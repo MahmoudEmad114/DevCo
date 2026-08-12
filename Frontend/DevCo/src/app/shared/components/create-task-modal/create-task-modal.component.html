@@ -1,0 +1,44 @@
+<div class="modal-overlay" (click)="cancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <h3>Create Task</h3>
+
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <label>Title *</label>
+    <input type="text" [(ngModel)]="title" placeholder="Task title" />
+
+    <label>Description</label>
+    <textarea [(ngModel)]="description" placeholder="Task description"></textarea>
+
+    <label>Assigned To</label>
+    <select [(ngModel)]="assignedTo">
+      <option value="">-- Unassigned --</option>
+      <option *ngFor="let member of projectMembers" [value]="member._id">
+        {{ member.name }}
+      </option>
+    </select>
+
+    <label>Priority</label>
+    <select [(ngModel)]="priority">
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+      <option value="urgent">Urgent</option>
+    </select>
+
+    <label>Due Date</label>
+    <input type="date" [(ngModel)]="dueDate" />
+
+    <label>Labels (comma separated)</label>
+    <input type="text" [(ngModel)]="labelsInput" placeholder="bug, frontend, urgent" />
+
+    <div class="modal-actions">
+      <button (click)="cancel()" [disabled]="isSubmitting">Cancel</button>
+      <button (click)="submit()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Creating...' : 'Create Task' }}
+      </button>
+    </div>
+
+  </div>
+</div>

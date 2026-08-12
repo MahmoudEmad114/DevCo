@@ -1,0 +1,65 @@
+<div class="task-detail-panel" *ngIf="taskId">
+
+  <button class="close-btn" (click)="close()">×</button>
+
+  <div *ngIf="isLoading" class="loading">Loading...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div *ngIf="task && !isLoading">
+
+    <h2>{{ task.title }}</h2>
+
+    <p class="description" *ngIf="task.description">{{ task.description }}</p>
+    <p class="description empty" *ngIf="!task.description">No description</p>
+
+    <div class="meta-row">
+      <span class="label">Assigned to:</span>
+      <span>{{ getAssigneeName() }}</span>
+    </div>
+
+    <div class="meta-row">
+      <span class="label">Priority:</span>
+      <span class="priority-badge" [class]="'priority-' + task.priority">{{ task.priority }}</span>
+    </div>
+
+    <div class="meta-row" *ngIf="task.dueDate">
+      <span class="label">Due date:</span>
+      <span>{{ task.dueDate | date: 'mediumDate' }}</span>
+    </div>
+
+    <div class="meta-row" *ngIf="task.labels?.length">
+      <span class="label">Labels:</span>
+      <span class="label-tag" *ngFor="let label of task.labels">{{ label }}</span>
+    </div>
+
+    <hr />
+
+    <h3>Subtasks</h3>
+
+    <div class="subtask-list">
+      <div class="subtask-item" *ngFor="let subtask of subtasks">
+        <input
+          type="checkbox"
+          [checked]="subtask.isCompleted"
+          (change)="toggleSubtaskComplete(subtask)" />
+        <span [class.completed]="subtask.isCompleted">{{ subtask.title }}</span>
+        <button class="delete-btn" (click)="deleteSubtask(subtask)">🗑</button>
+      </div>
+
+      <div *ngIf="subtasks.length === 0" class="empty-state">No subtasks yet</div>
+    </div>
+
+    <div class="add-subtask-row">
+      <input
+        type="text"
+        [(ngModel)]="newSubtaskTitle"
+        placeholder="Add a subtask..."
+        (keyup.enter)="addSubtask()" />
+      <button (click)="addSubtask()" [disabled]="isAddingSubtask || !newSubtaskTitle.trim()">
+        Add
+      </button>
+    </div>
+
+  </div>
+
+</div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, transferArrayItem } from '@angular/cdk/drag-drop';
 import { TaskService } from '../../../core/services/task.service';
 import { Task, TaskStatus } from '../../../core/models/task.model';
@@ -15,7 +16,7 @@ interface TaskColumn {
   styleUrls: ['./task-board.component.css']
 })
 export class TaskBoardComponent implements OnInit {
-  @Input() projectId!: string;
+  @Input() projectId!: string; // لسه سايبنها @Input عشان لو استخدمناها جوه صفحة تانية زي مودال
 
   columns: TaskColumn[] = [
     { status: 'todo', title: 'To Do', tasks: [] },
@@ -32,13 +33,30 @@ export class TaskBoardComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  constructor(private taskService: TaskService) {}
+  selectedTaskId: string | null = null;
+
+  constructor(
+    private taskService: TaskService,
+    private route: ActivatedRoute // جديد
+  ) {}
 
   ngOnInit(): void {
+    // لو الـ projectId جاي من الـ URL (زي /projects/:projectId/tasks)، ناخده من هناك
+    const idFromRoute = this.route.snapshot.paramMap.get('projectId');
+    if (idFromRoute) {
+      this.projectId = idFromRoute;
+    }
+
     this.loadTasks();
   }
 
   loadTasks(): void {
+    if (!this.projectId) {
+      this.errorMessage = 'No project selected';
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -100,5 +118,17 @@ export class TaskBoardComponent implements OnInit {
         console.error('Failed to update status', err);
       }
     });
+  }
+
+  openTaskDetail(task: Task): void {
+    this.selectedTaskId = task._id;
+  }
+
+  closeTaskDetail(): void {
+    this.selectedTaskId = null;
+  }
+
+  onTaskUpdated(): void {
+    this.loadTasks();
   }
 }

@@ -1,0 +1,42 @@
+<div class="project-details">
+
+  <div *ngIf="isLoading" class="loading">Loading project...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div *ngIf="project && !isLoading">
+
+    <div class="header-row">
+      <div>
+        <h1>{{ project.name }}</h1>
+        <p *ngIf="project.description">{{ project.description }}</p>
+      </div>
+
+      <div class="actions">
+        <button (click)="openCreateTaskModal()">+ Create Task</button>
+        <button (click)="goToTasks()">View Task Board</button>
+      </div>
+    </div>
+
+    <div class="meta">
+      <span class="status-badge">{{ project.status }}</span>
+      <span *ngIf="project.deadline">Deadline: {{ project.deadline | date: 'mediumDate' }}</span>
+    </div>
+
+    <h3>Members</h3>
+    <ul class="members-list">
+      <li *ngFor="let member of members">
+        {{ member.user.name }} <span class="role-tag">{{ member.role }}</span>
+      </li>
+    </ul>
+
+  </div>
+
+  <app-create-task-modal
+    *ngIf="showCreateTaskModal"
+    [projectId]="projectId"
+    [projectMembers]="memberOptions"
+    (closed)="closeCreateTaskModal()"
+    (taskCreated)="onTaskCreated()">
+  </app-create-task-modal>
+
+</div>

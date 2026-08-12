@@ -1,15 +1,13 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-import { TaskBoardComponent } from './pages/tasks/task-board/task-board.component';
 
 import { LoginComponent } from './pages/auth/login/login.component';
 import { SignupComponent } from './pages/auth/signup/signup.component';
@@ -22,11 +20,13 @@ import { SidebarComponent } from './shared/components/sidebar/sidebar.component'
 import { HeaderComponent } from './shared/components/header/header.component';
 import { WorkspacesComponent } from './pages/workspaces/workspaces.component';
 import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/workspace-details.component';
+import { CreateTaskModalComponent } from './shared/components/create-task-modal/create-task-modal.component';import { TaskDetailComponent } from './shared/components/task-detail/task-detail.component';
+import { TaskBoardComponent } from './pages/tasks/task-board/task-board.component';
+import { ProjectDetailsComponent } from './pages/projects/project-details/project-details.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TaskBoardComponent,
     LoginComponent,
     DashboardComponent,
     SignupComponent,
@@ -37,6 +37,10 @@ import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/
     HeaderComponent,
     WorkspacesComponent,
     WorkspaceDetailsComponent,
+    CreateTaskModalComponent,
+    TaskDetailComponent,
+    TaskBoardComponent,
+    ProjectDetailsComponent,
   ],
   imports: [
     BrowserModule,
