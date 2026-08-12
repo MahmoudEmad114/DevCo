@@ -1,0 +1,118 @@
+<div class="chat-container">
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-icon">💬</div>
+
+      <div>
+        <h2>Project Chat</h2>
+
+        <p>Communicate with your team</p>
+      </div>
+    </div>
+
+    <div class="online-indicator">
+      <span></span>
+      Live
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="chat-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-container" *ngIf="!isLoading">
+    <!-- Empty -->
+    <div *ngIf="messages.length === 0" class="empty-chat">
+      <div class="empty-chat-icon">💬</div>
+
+      <h3>No messages yet</h3>
+
+      <p>Start the conversation with your team.</p>
+    </div>
+
+    <!-- Message -->
+    <div
+      *ngFor="let message of messages"
+      class="message-row"
+      [class.own-message]="isOwnMessage(message)"
+    >
+      <div class="message-avatar" *ngIf="!isOwnMessage(message)">
+        {{ message.sender.name.charAt(0).toUpperCase() }}
+      </div>
+
+      <div class="message-content">
+        <div class="message-meta">
+          <span class="sender-name" *ngIf="!isOwnMessage(message)">
+            {{ message.sender.name }}
+          </span>
+
+          <span class="message-time">
+            {{ message.createdAt | date: "shortTime" }}
+          </span>
+        </div>
+
+        <div class="message-bubble">
+          {{ message.text }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing -->
+    <div class="typing-indicator" *ngIf="isTyping">
+      <div class="typing-avatar">
+        {{ typingUserName.charAt(0).toUpperCase() }}
+      </div>
+
+      <div class="typing-content">
+        <span> {{ typingUserName }} is typing </span>
+
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="chat-loading">
+    <div class="loading-spinner"></div>
+
+    <span> Loading conversation... </span>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-area">
+    <textarea
+      [(ngModel)]="messageText"
+      (input)="onTyping()"
+      (keydown)="onKeyDown($event)"
+      placeholder="Write a message..."
+      rows="1"
+      maxlength="5000"
+    ></textarea>
+
+    <button
+      type="button"
+      class="send-button"
+      [disabled]="!messageText.trim()"
+      (click)="sendMessage()"
+    >
+      <span>Send</span>
+
+      <span class="send-icon"> ➤ </span>
+    </button>
+  </div>
+
+  <div class="chat-hint">
+    Press
+    <strong>Enter</strong>
+    to send ·
+    <strong>Shift + Enter</strong>
+    for a new line
+  </div>
+</div>

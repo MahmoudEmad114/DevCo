@@ -134,7 +134,8 @@ export class ProjectDetailsComponent implements OnInit {
     private memberService: MemberService,
     private userService: UserService,
     private taskService: TaskService,
-    private issueService: IssueService
+    private issueService: IssueService,
+    
   ) {}
 
   // =========================
@@ -971,4 +972,16 @@ export class ProjectDetailsComponent implements OnInit {
 
     return this.project.workspace._id;
   }
+
+  openProjectChat(): void {
+  if (!this.project?._id) {
+    return;
+  }
+
+  this.router.navigate([
+    '/projects',
+    this.project._id,
+    'chat'
+  ]);
+}
 }

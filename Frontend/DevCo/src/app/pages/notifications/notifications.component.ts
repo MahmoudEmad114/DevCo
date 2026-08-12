@@ -1,79 +1,207 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
 
-import { NotificationService } from '../../core/services/notification.service';
-import { Notification } from '../../core/models/notification.model';
+import { Router } from '@angular/router';
+
+import {
+  Notification
+} from '../../core/models/notification.model';
+
+import {
+  NotificationService
+} from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
-  styleUrls: ['./notifications.component.css'],
+  styleUrls: ['./notifications.component.css']
 })
 export class NotificationsComponent implements OnInit {
-  notifications: Notification[] = [];
-  isLoading = false;
-  errorMessage = '';
 
-  constructor(private notificationService: NotificationService) {}
+  notifications: Notification[] = [];
+
+  loading = true;
+
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.loadNotifications();
+
+    this.notificationService
+      .notifications$
+      .subscribe(notifications => {
+
+        this.notifications = notifications;
+
+        this.loading = false;
+
+      });
+
+    this.notificationService
+      .loadNotifications();
   }
 
-  loadNotifications(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+  openNotification(
+    notification: Notification
+  ): void {
 
-    this.notificationService.getMyNotifications().subscribe({
-      next: (response) => {
-        this.notifications = response.data.notifications;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || 'Failed to load notifications.';
-        this.isLoading = false;
-      },
-    });
-  }
+    // Mark as read first if needed
+    if (!notification.isRead) {
 
-  onMarkAsRead(notification: Notification): void {
-    if (notification.isRead) {
-      return;
+      this.notificationService
+        .markAsRead(notification._id)
+        .subscribe({
+
+          next: response => {
+
+            this.notificationService
+              .updateNotificationLocally(
+                response.data.notification
+              );
+
+          },
+
+          error: err => {
+
+            console.error(
+              'Failed to mark notification as read',
+              err
+            );
+
+          }
+
+        });
     }
 
-    this.notificationService.markAsRead(notification._id).subscribe({
-      next: () => {
-        notification.isRead = true;
-      },
-      error: (error) => {
-        this.errorMessage = error?.error?.message || 'Failed to mark as read.';
-      },
-    });
-  }
+    // Navigate according to notification type
+    switch (notification.type) {
 
-  onMarkAllAsRead(): void {
-    this.notificationService.markAllAsRead().subscribe({
-      next: () => {
-        this.notifications.forEach((n) => (n.isRead = true));
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || 'Failed to mark all as read.';
-      },
-    });
-  }
+      case 'workspace-added':
 
-  onDelete(notification: Notification): void {
-    this.notificationService.deleteNotification(notification._id).subscribe({
-      next: () => {
-        this.notifications = this.notifications.filter(
-          (n) => n._id !== notification._id,
+        this.router.navigate([
+          '/workspaces',
+          notification.relatedItem
+        ]);
+
+        break;
+
+      case 'project-added':
+
+        this.router.navigate([
+          '/projects',
+          notification.relatedItem
+        ]);
+
+        break;
+
+      case 'task-assigned':
+
+        this.router.navigate([
+          '/tasks',
+          notification.relatedItem
+        ]);
+
+        break;
+
+      case 'issue-assigned':
+
+        this.router.navigate([
+          '/issues',
+          notification.relatedItem
+        ]);
+
+        break;
+
+      default:
+
+        console.warn(
+          'Unknown notification type:',
+          notification.type
         );
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || 'Failed to delete notification.';
-      },
-    });
+
+        break;
+    }
   }
+
+  markAllAsRead(): void {
+
+    this.notificationService
+      .markAllAsRead()
+      .subscribe({
+
+        next: () => {
+
+          this.notificationService
+            .markAllAsReadLocally();
+
+        },
+
+        error: err => {
+
+          console.error(
+            'Failed to mark all notifications as read',
+            err
+          );
+
+        }
+
+      });
+  }
+
+  deleteNotification(
+    notification: Notification
+  ): void {
+
+    this.notificationService
+      .deleteNotification(notification._id)
+      .subscribe({
+
+        next: () => {
+
+          this.notificationService
+            .removeNotificationLocally(
+              notification._id
+            );
+
+        },
+
+        error: err => {
+
+          console.error(
+            'Failed to delete notification',
+            err
+          );
+
+        }
+
+      });
+  }
+
+  getNotificationIcon(
+    type: Notification['type']
+  ): string {
+
+    switch (type) {
+
+      case 'workspace-added':
+        return '▦';
+
+      case 'project-added':
+        return '◈';
+
+      case 'task-assigned':
+        return '✓';
+
+      case 'issue-assigned':
+        return '!';
+
+      default:
+        return '◔';
+    }
+  }
+
 }

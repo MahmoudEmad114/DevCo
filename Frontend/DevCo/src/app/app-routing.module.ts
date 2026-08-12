@@ -25,6 +25,11 @@ import { TasksComponent } from './pages/tasks/tasks.component';
 import { IssueDetailsComponent } from './pages/issues/issue-details/issue-details.component'; 
 import { IssueListComponent } from './pages/issues/issues.component'
 
+import { NotificationsComponent }
+  from './pages/notifications/notifications.component';
+
+  import { ProjectChatComponent } from './pages/projects/project-chat/project-chat.component';
+
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
@@ -70,6 +75,10 @@ const routes: Routes = [
         component: ProjectsComponent
       },
       {
+        path: 'projects/:id/chat',
+        component: ProjectChatComponent
+      },
+      {
         path: 'projects/:id',
         component: ProjectDetailsComponent
       },
@@ -88,7 +97,11 @@ const routes: Routes = [
       {
         path: 'issues/:id',
         component: IssueDetailsComponent
-      }
+      },
+      {
+        path: 'notifications',
+        component: NotificationsComponent
+      },
     ]
   },
 

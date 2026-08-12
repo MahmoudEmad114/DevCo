@@ -49,18 +49,26 @@
         </div>
       </div>
 
-      <!-- Status -->
+      <div class="project-header-actions">
+        <!-- Chat -->
 
-      <span
-        class="project-status"
-        [class.planning]="project.status === 'planning'"
-        [class.active]="project.status === 'active'"
-        [class.on-hold]="project.status === 'on_hold'"
-        [class.completed]="project.status === 'completed'"
-        [class.archived]="project.status === 'archived'"
-      >
-        {{ project.status }}
-      </span>
+        <button type="button" class="chat-btn" (click)="openProjectChat()">
+          💬 Open Chat
+        </button>
+
+        <!-- Status -->
+
+        <span
+          class="project-status"
+          [class.planning]="project.status === 'planning'"
+          [class.active]="project.status === 'active'"
+          [class.on-hold]="project.status === 'on_hold'"
+          [class.completed]="project.status === 'completed'"
+          [class.archived]="project.status === 'archived'"
+        >
+          {{ project.status }}
+        </span>
+      </div>
     </div>
 
     <!-- =========================

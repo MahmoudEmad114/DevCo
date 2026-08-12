@@ -1749,6 +1749,30 @@
     }
 }
 
+.project-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-btn {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #111827;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.chat-btn:hover {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
 
 /* =========================
    Responsive Tasks

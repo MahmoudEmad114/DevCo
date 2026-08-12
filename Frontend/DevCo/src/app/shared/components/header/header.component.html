@@ -4,7 +4,12 @@
   </div>
 
   <div class="header-right">
-    <button class="notification-btn" routerLink="/notifications">🔔</button>
+    <button class="notification-btn" routerLink="/notifications">
+      🔔
+      <span class="notification-badge" *ngIf="unreadCount > 0">
+        {{ unreadCount > 99 ? "99+" : unreadCount }}
+      </span>
+    </button>
 
     <div class="user-info">
       <img

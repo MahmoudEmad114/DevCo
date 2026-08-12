@@ -1,0 +1,122 @@
+<div class="chat-page">
+  <!-- =========================
+       Header
+  ========================== -->
+
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <button class="back-button" type="button" (click)="goBack()">←</button>
+
+      <div>
+        <h1>Project Chat</h1>
+
+        <p>Real-time team conversation</p>
+      </div>
+    </div>
+
+    <div class="connection-status">
+      <span class="status-dot"></span>
+
+      Live
+    </div>
+  </div>
+
+  <!-- =========================
+       Error
+  ========================== -->
+
+  <div *ngIf="errorMessage" class="chat-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- =========================
+       Messages
+  ========================== -->
+
+  <div class="messages-container" #messagesContainer>
+    <!-- Loading -->
+
+    <div *ngIf="isLoading" class="chat-state">Loading messages...</div>
+
+    <!-- Empty -->
+
+    <div *ngIf="!isLoading && messages.length === 0" class="chat-empty">
+      <div class="empty-icon">💬</div>
+
+      <h3>No messages yet</h3>
+
+      <p>Start the conversation with your project team.</p>
+    </div>
+
+    <!-- Messages -->
+
+    <div
+      *ngFor="let message of messages"
+      class="message-wrapper"
+      [class.own]="isOwnMessage(message)"
+    >
+      <div class="message-avatar">
+        <img
+          *ngIf="message.sender.photo"
+          [src]="message.sender.photo"
+          [alt]="message.sender.name"
+        />
+
+        <span *ngIf="!message.sender.photo">
+          {{ message.sender.name.charAt(0).toUpperCase() }}
+        </span>
+      </div>
+
+      <div class="message-content">
+        <div class="message-meta">
+          <strong>
+            {{ message.sender.name }}
+          </strong>
+
+          <span>
+            {{ message.createdAt | date: "shortTime" }}
+          </span>
+        </div>
+
+        <div class="message-bubble">
+          {{ message.text }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       Typing
+  ========================== -->
+
+  <div *ngIf="isTyping" class="typing-indicator">
+    <span></span>
+    <span></span>
+    <span></span>
+
+    <span class="typing-text"> {{ typingUserName }} is typing... </span>
+  </div>
+
+  <!-- =========================
+       Input
+  ========================== -->
+
+  <div class="message-input-area">
+    <textarea
+      [(ngModel)]="messageText"
+      (input)="onTyping()"
+      (keydown)="onKeyDown($event)"
+      placeholder="Write a message..."
+      rows="1"
+    ></textarea>
+
+    <button
+      type="button"
+      class="send-button"
+      (click)="sendMessage()"
+      [disabled]="!messageText.trim()"
+    >
+      Send
+    </button>
+  </div>
+</div>

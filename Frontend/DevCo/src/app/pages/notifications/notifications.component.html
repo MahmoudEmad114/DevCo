@@ -1,31 +1,63 @@
 <div class="notifications-page">
-    <div class="notifications-header">
-        <h2>Notifications</h2>
-        <button (click)="onMarkAllAsRead()" *ngIf="notifications.length > 0">
-            Mark all as read
-        </button>
+  <div class="page-header">
+    <div>
+      <h1>Notifications</h1>
+
+      <p>Stay updated with your workspace and project activity.</p>
     </div>
 
-    <div *ngIf="isLoading">Loading notifications...</div>
+    <button
+      class="mark-all-btn"
+      (click)="markAllAsRead()"
+      [disabled]="!notifications.length"
+    >
+      Mark all as read
+    </button>
+  </div>
 
-    <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
+  <div class="loading" *ngIf="loading">Loading notifications...</div>
+
+  <div class="empty-state" *ngIf="!loading && !notifications.length">
+    <div class="empty-icon">◔</div>
+
+    <h3>No notifications</h3>
+
+    <p>You're all caught up.</p>
+  </div>
+
+  <div class="notifications-list" *ngIf="!loading && notifications.length">
+    <div
+      class="notification-item"
+      *ngFor="let notification of notifications"
+      [class.unread]="!notification.isRead"
+      (click)="openNotification(notification)"
+    >
+      <div class="notification-icon">
+        {{ getNotificationIcon(notification.type) }}
+      </div>
+
+      <div class="notification-content">
+        <div class="notification-message">
+          <strong *ngIf="notification.sender">
+            {{ notification.sender.name }}
+          </strong>
+
+          {{ notification.message }}
+        </div>
+
+        <div class="notification-time">
+          {{ notification.createdAt | date: "medium" }}
+        </div>
+      </div>
+
+      <div class="unread-dot" *ngIf="!notification.isRead"></div>
+
+      <button
+        class="delete-btn"
+        (click)="$event.stopPropagation(); deleteNotification(notification)"
+      >
+        ×
+      </button>
     </div>
-
-    <div *ngIf="!isLoading && notifications.length === 0">
-        No notifications yet.
-    </div>
-
-    <ul *ngIf="!isLoading && notifications.length > 0" class="notifications-list">
-        <li *ngFor="let notification of notifications" [class.unread]="!notification.isRead"
-            (click)="onMarkAsRead(notification)">
-
-            <span class="message">{{ notification.message }}</span>
-            <span class="type">{{ notification.type }}</span>
-
-            <button (click)="onDelete(notification); $event.stopPropagation()">
-                Delete
-            </button>
-        </li>
-    </ul>
+  </div>
 </div>

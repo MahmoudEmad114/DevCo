@@ -34,7 +34,9 @@ import { TaskDetailsComponent } from './pages/tasks/task-details/task-details.co
 import { TasksComponent } from './pages/tasks/tasks.component';
 import { IssueDetailsComponent } from './pages/issues/issue-details/issue-details.component';
 
-import { IssueListComponent } from './pages/issues/issues.component'
+import { IssueListComponent } from './pages/issues/issues.component';
+import { ChatComponent } from './pages/chat/chat.component';
+import { ProjectChatComponent } from './pages/projects/project-chat/project-chat.component'
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import { IssueListComponent } from './pages/issues/issues.component'
     TaskDetailsComponent,
     TasksComponent,
     IssueDetailsComponent,
-    IssueListComponent
+    IssueListComponent,
+    ChatComponent,
+    ProjectChatComponent
   ],
 
   imports: [
