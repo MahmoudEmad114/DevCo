@@ -1,0 +1,252 @@
+<div class="task-details-page">
+  <!-- =========================
+       Loading
+  ========================== -->
+
+  <div *ngIf="isLoading" class="state">Loading task...</div>
+
+  <!-- =========================
+       Error
+  ========================== -->
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="back-btn" (click)="goBack()">Back</button>
+  </div>
+
+  <!-- =========================
+       Task
+  ========================== -->
+
+  <div *ngIf="!isLoading && task" class="task-content">
+    <!-- Back -->
+
+    <button class="back-link" (click)="goBack()">← Back to Project</button>
+
+    <!-- =========================
+         Task Header
+    ========================== -->
+
+    <div class="task-header">
+      <div class="task-header-main">
+        <div class="task-icon">✓</div>
+
+        <div>
+          <h1>
+            {{ task.title }}
+          </h1>
+
+          <p *ngIf="task.project">Project: {{ getProjectName() }}</p>
+        </div>
+      </div>
+
+      <!-- Status -->
+
+      <span
+        class="task-status"
+        [class.todo]="task.status === 'todo'"
+        [class.in-progress]="task.status === 'in-progress'"
+        [class.review]="task.status === 'review'"
+        [class.testing]="task.status === 'testing'"
+        [class.done]="task.status === 'done'"
+      >
+        {{ getStatusLabel(task.status) }}
+      </span>
+    </div>
+
+    <!-- =========================
+         Task Overview
+    ========================== -->
+
+    <div class="task-overview">
+      <div class="section-title">
+        <h2>Task Details</h2>
+
+        <p>Information about this task.</p>
+      </div>
+
+      <!-- Description -->
+
+      <div class="description-block">
+        <span class="label"> Description </span>
+
+        <p *ngIf="task.description">
+          {{ task.description }}
+        </p>
+
+        <p *ngIf="!task.description" class="empty-text">
+          No description available.
+        </p>
+      </div>
+
+      <!-- Labels -->
+
+      <div class="labels-block" *ngIf="task.labels && task.labels.length > 0">
+        <span class="label"> Labels </span>
+
+        <div class="labels">
+          <span class="task-label" *ngFor="let label of task.labels">
+            {{ label }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Task Information
+    ========================== -->
+
+    <div class="info-card">
+      <h2>Task Information</h2>
+
+      <div class="info-grid">
+        <!-- Status -->
+
+        <div class="info-item">
+          <span class="label"> Status </span>
+
+          <strong>
+            {{ getStatusLabel(task.status) }}
+          </strong>
+        </div>
+
+        <!-- Priority -->
+
+        <div class="info-item">
+          <span class="label"> Priority </span>
+
+          <strong
+            class="priority"
+            [class.low]="task.priority === 'low'"
+            [class.medium]="task.priority === 'medium'"
+            [class.high]="task.priority === 'high'"
+            [class.urgent]="task.priority === 'urgent'"
+          >
+            {{ getPriorityLabel(task.priority) }}
+          </strong>
+        </div>
+
+        <!-- Assignee -->
+
+        <div class="info-item">
+          <span class="label"> Assigned To </span>
+
+          <strong>
+            {{ getAssigneeName() }}
+          </strong>
+        </div>
+
+        <!-- Created By -->
+
+        <div class="info-item">
+          <span class="label"> Created By </span>
+
+          <strong>
+            {{ getCreatorName() }}
+          </strong>
+        </div>
+
+        <!-- Due Date -->
+
+        <div class="info-item">
+          <span class="label"> Due Date </span>
+
+          <strong>
+            <span *ngIf="task.dueDate">
+              {{ task.dueDate | date: "mediumDate" }}
+            </span>
+
+            <span *ngIf="!task.dueDate" class="empty-text"> No due date </span>
+          </strong>
+        </div>
+
+        <!-- Created -->
+
+        <div class="info-item">
+          <span class="label"> Created </span>
+
+          <strong>
+            {{ task.createdAt | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <!-- Updated -->
+
+        <div class="info-item">
+          <span class="label"> Last Updated </span>
+
+          <strong>
+            {{ task.updatedAt | date: "mediumDate" }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Assignee Card
+    ========================== -->
+
+    <div class="assignee-card">
+      <div class="section-title">
+        <h2>Assignee</h2>
+
+        <p>Person responsible for this task.</p>
+      </div>
+
+      <!-- Assigned User -->
+
+      <div *ngIf="assignedUser" class="assignee">
+        <div class="avatar">
+          <img
+            *ngIf="assignedUser.photo"
+            [src]="assignedUser.photo"
+            [alt]="assignedUser.name"
+          />
+
+          <span *ngIf="!assignedUser.photo">
+            {{ assignedUser.name.charAt(0).toUpperCase() }}
+          </span>
+        </div>
+
+        <div class="assignee-info">
+          <strong>
+            {{ assignedUser.name }}
+          </strong>
+
+          <span>
+            {{ assignedUser.email }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Unassigned -->
+
+      <div *ngIf="!assignedUser" class="assignee">
+        <div class="avatar unassigned">?</div>
+
+        <div class="assignee-info">
+          <strong> Unassigned </strong>
+
+          <span> No user assigned to this task. </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Future Actions
+    ========================== -->
+
+    <div class="actions-card">
+      <div>
+        <h3>Task Actions</h3>
+
+        <p>Task editing and assignment controls will be available here.</p>
+      </div>
+    </div>
+  </div>
+</div>

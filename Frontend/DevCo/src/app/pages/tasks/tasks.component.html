@@ -1,0 +1,169 @@
+<div class="tasks-page">
+  <!-- =========================
+       Header
+  ========================== -->
+
+  <div class="tasks-header">
+    <div>
+      <h1>Tasks</h1>
+
+      <p>All tasks across your projects</p>
+    </div>
+  </div>
+
+  <!-- =========================
+       Loading
+  ========================== -->
+
+  <div *ngIf="isLoading" class="state">Loading tasks...</div>
+
+  <!-- =========================
+       Error
+  ========================== -->
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button (click)="loadTasks()">Retry</button>
+  </div>
+
+  <!-- =========================
+       Empty
+  ========================== -->
+
+  <div *ngIf="!isLoading && !errorMessage && tasks.length === 0" class="state">
+    <div class="empty-icon">✓</div>
+
+    <h3>No tasks yet</h3>
+
+    <p>You don't have any tasks yet.</p>
+  </div>
+
+  <!-- =========================
+       Tasks Grid
+  ========================== -->
+
+  <div
+    *ngIf="!isLoading && !errorMessage && tasks.length > 0"
+    class="tasks-grid"
+  >
+    <div
+      class="task-card"
+      *ngFor="let task of tasks"
+      (click)="openTaskDetails(task._id)"
+    >
+      <!-- =========================
+           Card Header
+      ========================== -->
+
+      <div class="task-card-header">
+        <div class="task-icon">✓</div>
+
+        <span
+          class="task-status"
+          [class.todo]="task.status === 'todo'"
+          [class.in-progress]="task.status === 'in-progress'"
+          [class.review]="task.status === 'review'"
+          [class.testing]="task.status === 'testing'"
+          [class.done]="task.status === 'done'"
+        >
+          {{ getStatusLabel(task.status) }}
+        </span>
+      </div>
+
+      <!-- =========================
+           Task Content
+      ========================== -->
+
+      <div class="task-card-content">
+        <h3>
+          {{ task.title }}
+        </h3>
+
+        <p *ngIf="task.description" class="task-description">
+          {{ task.description }}
+        </p>
+
+        <p *ngIf="!task.description" class="task-description empty-description">
+          No description available.
+        </p>
+      </div>
+
+      <!-- =========================
+           Project
+      ========================== -->
+
+      <div class="task-project">
+        <span class="label"> Project </span>
+
+        <strong>
+          {{ getProjectName(task) }}
+        </strong>
+      </div>
+
+      <!-- =========================
+           Priority
+      ========================== -->
+
+      <div class="task-card-meta">
+        <div class="meta-item">
+          <span class="label"> Priority </span>
+
+          <span
+            class="priority"
+            [class.low]="task.priority === 'low'"
+            [class.medium]="task.priority === 'medium'"
+            [class.high]="task.priority === 'high'"
+            [class.urgent]="task.priority === 'urgent'"
+          >
+            {{ getPriorityLabel(task.priority) }}
+          </span>
+        </div>
+
+        <!-- Due Date -->
+
+        <div class="meta-item">
+          <span class="label"> Due Date </span>
+
+          <strong *ngIf="task.dueDate">
+            {{ task.dueDate | date: "mediumDate" }}
+          </strong>
+
+          <span *ngIf="!task.dueDate" class="no-date"> No due date </span>
+        </div>
+      </div>
+
+      <!-- =========================
+           Footer
+      ========================== -->
+
+      <div class="task-card-footer">
+        <div class="task-assignee">
+          <div class="task-avatar">
+            <img
+              *ngIf="getAssignedUser(task)?.photo"
+              [src]="getAssignedUser(task)?.photo"
+              [alt]="getAssignedUserName(task)"
+            />
+
+            <span *ngIf="!getAssignedUser(task)"> ? </span>
+
+            <span *ngIf="getAssignedUser(task)">
+              {{ getAssignedUserName(task).charAt(0).toUpperCase() }}
+            </span>
+          </div>
+
+          <span>
+            {{ getAssignedUserName(task) }}
+          </span>
+        </div>
+
+        <span class="view-task"> View → </span>
+      </div>
+    </div>
+  </div>
+</div>

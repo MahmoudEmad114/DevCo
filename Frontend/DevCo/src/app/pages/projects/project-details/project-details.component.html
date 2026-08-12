@@ -1,0 +1,1025 @@
+<div class="project-details-page">
+  <!-- =========================
+       Loading
+  ========================== -->
+
+  <div *ngIf="isLoading" class="state">Loading project...</div>
+
+  <!-- =========================
+       Error
+  ========================== -->
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="back-btn" (click)="goBack()">Back</button>
+  </div>
+
+  <!-- =========================
+       Project
+  ========================== -->
+
+  <div *ngIf="!isLoading && project" class="project-content">
+    <!-- Back -->
+
+    <button class="back-link" (click)="goBack()">← Back to Workspace</button>
+
+    <!-- =========================
+         Project Header
+    ========================== -->
+
+    <div class="project-header">
+      <div class="project-title">
+        <div class="project-icon">
+          {{ project.name.charAt(0).toUpperCase() }}
+        </div>
+
+        <div>
+          <h1>
+            {{ project.name }}
+          </h1>
+
+          <p>
+            {{ project.description || "No description available." }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Status -->
+
+      <span
+        class="project-status"
+        [class.planning]="project.status === 'planning'"
+        [class.active]="project.status === 'active'"
+        [class.on-hold]="project.status === 'on_hold'"
+        [class.completed]="project.status === 'completed'"
+        [class.archived]="project.status === 'archived'"
+      >
+        {{ project.status }}
+      </span>
+    </div>
+
+    <!-- =========================
+         Project Overview
+    ========================== -->
+
+    <div class="overview-card">
+      <h2>Project Overview</h2>
+
+      <div class="info-grid">
+        <!-- Project Name -->
+
+        <div class="info-item">
+          <span class="label"> Project Name </span>
+
+          <strong>
+            {{ project.name }}
+          </strong>
+        </div>
+
+        <!-- Start Date -->
+
+        <div class="info-item">
+          <span class="label"> Start Date </span>
+
+          <strong>
+            {{ project.startDate | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <!-- Deadline -->
+
+        <div class="info-item">
+          <span class="label"> Deadline </span>
+
+          <strong>
+            {{ project.deadline | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <!-- Created -->
+
+        <div class="info-item">
+          <span class="label"> Created </span>
+
+          <strong>
+            {{ project.createdAt | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <!-- Last Updated -->
+
+        <div class="info-item">
+          <span class="label"> Last Updated </span>
+
+          <strong>
+            {{ project.updatedAt | date: "mediumDate" }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Project Members
+    ========================== -->
+
+    <div class="members-section">
+      <!-- Section Header -->
+
+      <div class="section-header">
+        <div>
+          <h2>Project Members</h2>
+
+          <p>People working on this project.</p>
+        </div>
+
+        <button class="invite-btn" (click)="openInviteModal()">
+          + Invite Member
+        </button>
+      </div>
+
+      <!-- =========================
+           Members Loading
+      ========================== -->
+
+      <div *ngIf="isMembersLoading" class="members-state">
+        Loading members...
+      </div>
+
+      <!-- =========================
+           Members Error
+      ========================== -->
+
+      <div
+        *ngIf="!isMembersLoading && membersError"
+        class="members-state error-state"
+      >
+        <p>
+          {{ membersError }}
+        </p>
+
+        <button class="retry-btn" (click)="loadProjectMembers()">Retry</button>
+      </div>
+
+      <!-- =========================
+           Empty Members
+      ========================== -->
+
+      <div
+        *ngIf="!isMembersLoading && !membersError && members.length === 0"
+        class="members-state"
+      >
+        <div class="empty-icon">👥</div>
+
+        <h3>No project members yet</h3>
+
+        <p>Invite people to start working on this project.</p>
+      </div>
+
+      <!-- =========================
+           Members List
+      ========================== -->
+
+      <div
+        *ngIf="!isMembersLoading && !membersError && members.length > 0"
+        class="members-list"
+      >
+        <div class="member-row" *ngFor="let member of members">
+          <!-- Avatar -->
+
+          <div class="member-avatar">
+            <img
+              *ngIf="member.user.photo"
+              [src]="member.user.photo"
+              [alt]="member.user.name"
+            />
+
+            <span *ngIf="!member.user.photo">
+              {{ member.user.name.charAt(0).toUpperCase() }}
+            </span>
+          </div>
+
+          <!-- User Info -->
+
+          <div class="member-info">
+            <strong>
+              {{ member.user.name }}
+            </strong>
+
+            <span>
+              {{ member.user.email }}
+            </span>
+          </div>
+
+          <!-- Role -->
+
+          <div
+            class="member-role"
+            [class.project-manager]="member.role === 'project_manager'"
+            [class.developer]="member.role === 'developer'"
+            [class.tester]="member.role === 'tester'"
+            [class.member]="member.role === 'member'"
+          >
+            {{
+              member.role === "project_manager"
+                ? "Project Manager"
+                : member.role === "developer"
+                  ? "Developer"
+                  : member.role === "tester"
+                    ? "Tester"
+                    : "Member"
+            }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Invite Modal
+    ========================== -->
+
+    <div
+      class="modal-overlay"
+      *ngIf="showInviteModal"
+      (click)="closeInviteModal()"
+    >
+      <div class="invite-modal" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+
+        <div class="modal-header">
+          <div>
+            <h2>Invite Member</h2>
+
+            <p>Invite a user to join this project.</p>
+          </div>
+
+          <button type="button" class="close-btn" (click)="closeInviteModal()">
+            ×
+          </button>
+        </div>
+
+        <!-- =========================
+             Search User
+        ========================== -->
+
+        <div class="form-group">
+          <label> Search User </label>
+
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="searchUsers()"
+            placeholder="Search by name or email..."
+            [disabled]="isInviting"
+          />
+        </div>
+
+        <!-- Searching -->
+
+        <div *ngIf="isSearching" class="search-state">Searching users...</div>
+
+        <!-- =========================
+             Search Results
+        ========================== -->
+
+        <div
+          *ngIf="!isSearching && searchResults.length > 0"
+          class="search-results"
+        >
+          <div
+            class="search-user"
+            *ngFor="let user of searchResults"
+            (click)="selectUser(user)"
+          >
+            <div class="search-avatar">
+              <img *ngIf="user.photo" [src]="user.photo" [alt]="user.name" />
+
+              <span *ngIf="!user.photo">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+
+            <div class="search-user-info">
+              <strong>
+                {{ user.name }}
+              </strong>
+
+              <span>
+                {{ user.email }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================
+             No Search Results
+        ========================== -->
+
+        <div
+          *ngIf="
+            !isSearching &&
+            searchQuery.trim().length >= 2 &&
+            searchResults.length === 0 &&
+            !selectedUser &&
+            !inviteError
+          "
+          class="search-state"
+        >
+          No users found.
+        </div>
+
+        <!-- =========================
+             Selected User
+        ========================== -->
+
+        <div *ngIf="selectedUser" class="selected-user">
+          <div class="selected-avatar">
+            <img
+              *ngIf="selectedUser.photo"
+              [src]="selectedUser.photo"
+              [alt]="selectedUser.name"
+            />
+
+            <span *ngIf="!selectedUser.photo">
+              {{ selectedUser.name.charAt(0).toUpperCase() }}
+            </span>
+          </div>
+
+          <div class="selected-info">
+            <strong>
+              {{ selectedUser.name }}
+            </strong>
+
+            <span>
+              {{ selectedUser.email }}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="remove-selected"
+            (click)="selectedUser = null; searchQuery = ''"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- =========================
+             Invite Error
+        ========================== -->
+
+        <div *ngIf="inviteError" class="form-error">
+          {{ inviteError }}
+        </div>
+
+        <!-- =========================
+             Invite Success
+        ========================== -->
+
+        <div *ngIf="inviteSuccess" class="form-success">
+          {{ inviteSuccess }}
+        </div>
+
+        <!-- =========================
+             Modal Actions
+        ========================== -->
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeInviteModal()"
+            [disabled]="isInviting"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="submit-btn"
+            (click)="inviteProjectMember()"
+            [disabled]="isInviting || !selectedUser"
+          >
+            <span *ngIf="!isInviting"> Send Invitation </span>
+
+            <span *ngIf="isInviting"> Sending... </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Tasks Placeholder
+    ========================== -->
+
+    <!-- =========================
+     Tasks Section
+========================== -->
+
+    <div class="tasks-section">
+      <!-- Header -->
+
+      <div class="section-header">
+        <div>
+          <h2>Tasks</h2>
+
+          <p>Manage tasks and track project progress.</p>
+        </div>
+
+        <button class="invite-btn" (click)="openCreateTaskModal()">
+          + Create Task
+        </button>
+      </div>
+
+      <!-- Loading -->
+
+      <div *ngIf="isTasksLoading" class="tasks-state">Loading tasks...</div>
+
+      <!-- Error -->
+
+      <div
+        *ngIf="!isTasksLoading && tasksError"
+        class="tasks-state error-state"
+      >
+        <p>
+          {{ tasksError }}
+        </p>
+
+        <button class="retry-btn" (click)="loadTasks()">Retry</button>
+      </div>
+
+      <!-- Empty -->
+
+      <div
+        *ngIf="!isTasksLoading && !tasksError && tasks.length === 0"
+        class="tasks-state"
+      >
+        <div class="empty-icon">✓</div>
+
+        <h3>No tasks yet</h3>
+
+        <p>Create the first task for this project.</p>
+
+        <button class="create-empty-btn" (click)="openCreateTaskModal()">
+          Create Task
+        </button>
+      </div>
+
+      <!-- Tasks List -->
+
+      <div
+        *ngIf="!isTasksLoading && !tasksError && tasks.length > 0"
+        class="tasks-list"
+      >
+        <div
+          class="task-card"
+          *ngFor="let task of tasks"
+          (click)="openTaskDetails(task._id)"
+        >
+          <!-- Top -->
+
+          <div class="task-card-top">
+            <div class="task-title-wrapper">
+              <h3>
+                {{ task.title }}
+              </h3>
+
+              <p *ngIf="task.description" class="task-description">
+                {{ task.description }}
+              </p>
+            </div>
+
+            <span
+              class="task-priority"
+              [class.low]="task.priority === 'low'"
+              [class.medium]="task.priority === 'medium'"
+              [class.high]="task.priority === 'high'"
+              [class.urgent]="task.priority === 'urgent'"
+            >
+              {{ getTaskPriorityLabel(task.priority) }}
+            </span>
+          </div>
+
+          <!-- Labels -->
+
+          <div *ngIf="task.labels?.length" class="task-labels">
+            <span *ngFor="let label of task.labels" class="task-label">
+              {{ label }}
+            </span>
+          </div>
+
+          <!-- Bottom -->
+
+          <div class="task-card-bottom">
+            <!-- Status -->
+
+            <select
+              class="task-status"
+              [value]="task.status"
+              (click)="$event.stopPropagation()"
+              (change)="changeTaskStatus(task, $any($event.target).value)"
+            >
+              <option value="todo">To Do</option>
+
+              <option value="in-progress">In Progress</option>
+
+              <option value="review">Review</option>
+
+              <option value="testing">Testing</option>
+
+              <option value="done">Done</option>
+            </select>
+
+            <!-- Assigned User -->
+
+            <div class="task-assignee">
+              <div class="task-avatar">
+                <img
+                  *ngIf="getAssignedUser(task)?.photo"
+                  [src]="getAssignedUser(task)?.photo"
+                  [alt]="getAssignedUserName(task)"
+                />
+
+                <span *ngIf="!getAssignedUser(task)"> ? </span>
+
+                <span *ngIf="getAssignedUser(task)">
+                  {{ getAssignedUserName(task).charAt(0).toUpperCase() }}
+                </span>
+              </div>
+
+              <span>
+                {{ getAssignedUserName(task) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+     Create Task Modal
+========================== -->
+
+    <div
+      class="modal-overlay"
+      *ngIf="showCreateTaskModal"
+      (click)="closeCreateTaskModal()"
+    >
+      <div class="create-task-modal" (click)="$event.stopPropagation()">
+        <!-- Header -->
+
+        <div class="modal-header">
+          <div>
+            <h2>Create Task</h2>
+
+            <p>Add a new task to this project.</p>
+          </div>
+
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeCreateTaskModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Title -->
+
+        <div class="form-group">
+          <label> Task Title </label>
+
+          <input
+            type="text"
+            [(ngModel)]="newTask.title"
+            placeholder="e.g. Build authentication page"
+            [disabled]="isCreatingTask"
+          />
+        </div>
+
+        <!-- Description -->
+
+        <div class="form-group">
+          <label> Description </label>
+
+          <textarea
+            [(ngModel)]="newTask.description"
+            placeholder="Describe what needs to be done..."
+            rows="4"
+            [disabled]="isCreatingTask"
+          ></textarea>
+        </div>
+
+        <!-- Assign -->
+
+        <div class="form-group">
+          <label> Assign To </label>
+
+          <select [(ngModel)]="newTask.assignedTo" [disabled]="isCreatingTask">
+            <option value="">Unassigned</option>
+
+            <option *ngFor="let member of members" [value]="member.user._id">
+              {{ member.user.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority -->
+
+        <div class="form-group">
+          <label> Priority </label>
+
+          <select [(ngModel)]="newTask.priority" [disabled]="isCreatingTask">
+            <option value="low">Low</option>
+
+            <option value="medium">Medium</option>
+
+            <option value="high">High</option>
+
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+
+        <!-- Due Date -->
+
+        <div class="form-group">
+          <label> Due Date </label>
+
+          <input
+            type="date"
+            [(ngModel)]="newTask.dueDate"
+            [disabled]="isCreatingTask"
+          />
+        </div>
+
+        <!-- Error -->
+
+        <div *ngIf="taskError" class="form-error">
+          {{ taskError }}
+        </div>
+
+        <!-- Success -->
+
+        <div *ngIf="taskSuccess" class="form-success">
+          {{ taskSuccess }}
+        </div>
+
+        <!-- Actions -->
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeCreateTaskModal()"
+            [disabled]="isCreatingTask"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="submit-btn"
+            (click)="createTask()"
+            [disabled]="isCreatingTask || !newTask.title.trim()"
+          >
+            <span *ngIf="!isCreatingTask"> Create Task </span>
+
+            <span *ngIf="isCreatingTask"> Creating... </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         Issues Placeholder
+    ========================== -->
+
+    <!-- =========================
+     Issues Section
+========================== -->
+
+    <div class="issues-section">
+      <!-- Header -->
+
+      <div class="section-header">
+        <div>
+          <h2>Issues</h2>
+
+          <p>Track bugs, problems, and technical issues in this project.</p>
+        </div>
+
+        <button class="invite-btn" (click)="openCreateIssueModal()">
+          + Create Issue
+        </button>
+      </div>
+
+      <!-- =========================
+       Loading
+  ========================== -->
+
+      <div *ngIf="isIssuesLoading" class="issues-state">Loading issues...</div>
+
+      <!-- =========================
+       Error
+  ========================== -->
+
+      <div
+        *ngIf="!isIssuesLoading && issuesError"
+        class="issues-state error-state"
+      >
+        <p>
+          {{ issuesError }}
+        </p>
+
+        <button class="retry-btn" (click)="loadIssues()">Retry</button>
+      </div>
+
+      <!-- =========================
+       Empty
+  ========================== -->
+
+      <div
+        *ngIf="!isIssuesLoading && !issuesError && issues.length === 0"
+        class="issues-state"
+      >
+        <div class="empty-icon">!</div>
+
+        <h3>No issues yet</h3>
+
+        <p>Create the first issue for this project.</p>
+
+        <button class="create-empty-btn" (click)="openCreateIssueModal()">
+          Create Issue
+        </button>
+      </div>
+
+      <!-- =========================
+       Issues List
+  ========================== -->
+
+      <div
+        *ngIf="!isIssuesLoading && !issuesError && issues.length > 0"
+        class="issues-list"
+      >
+        <div
+          class="issue-card"
+          *ngFor="let issue of issues"
+          (click)="openIssueDetails(issue._id)"
+        >
+          <!-- Top -->
+
+          <div class="issue-card-top">
+            <div class="issue-title-wrapper">
+              <h3>
+                {{ issue.title }}
+              </h3>
+
+              <p *ngIf="issue.description" class="issue-description">
+                {{ issue.description }}
+              </p>
+            </div>
+
+            <!-- Status -->
+
+            <span
+              class="issue-status"
+              [class.open]="issue.status === 'open'"
+              [class.in-progress]="issue.status === 'in-progress'"
+              [class.resolved]="issue.status === 'resolved'"
+              [class.closed]="issue.status === 'closed'"
+            >
+              {{ getIssueStatusLabel(issue.status) }}
+            </span>
+          </div>
+
+          <!-- Badges -->
+
+          <div class="issue-badges">
+            <span
+              class="issue-priority"
+              [class.low]="issue.priority === 'low'"
+              [class.medium]="issue.priority === 'medium'"
+              [class.high]="issue.priority === 'high'"
+              [class.urgent]="issue.priority === 'urgent'"
+            >
+              Priority:
+              {{ getIssuePriorityLabel(issue.priority) }}
+            </span>
+
+            <span
+              class="issue-severity"
+              [class.minor]="issue.severity === 'minor'"
+              [class.major]="issue.severity === 'major'"
+              [class.critical]="issue.severity === 'critical'"
+              [class.blocker]="issue.severity === 'blocker'"
+            >
+              Severity:
+              {{ getIssueSeverityLabel(issue.severity) }}
+            </span>
+          </div>
+
+          <!-- Bottom -->
+
+          <div class="issue-card-bottom">
+            <!-- Reporter -->
+
+            <div class="issue-person">
+              <div class="issue-avatar">
+                <img
+                  *ngIf="getIssueReporter(issue)?.photo"
+                  [src]="getIssueReporter(issue)?.photo"
+                  [alt]="getIssueReporterName(issue)"
+                />
+
+                <span *ngIf="!getIssueReporter(issue)"> ? </span>
+
+                <span *ngIf="getIssueReporter(issue)">
+                  {{ getIssueReporterName(issue).charAt(0).toUpperCase() }}
+                </span>
+              </div>
+
+              <div class="issue-person-info">
+                <span class="issue-person-label"> Reporter </span>
+
+                <span class="issue-person-name">
+                  {{ getIssueReporterName(issue) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Assignee -->
+
+            <div class="issue-person">
+              <div class="issue-avatar">
+                <img
+                  *ngIf="getIssueAssignee(issue)?.photo"
+                  [src]="getIssueAssignee(issue)?.photo"
+                  [alt]="getIssueAssigneeName(issue)"
+                />
+
+                <span *ngIf="!getIssueAssignee(issue)"> ? </span>
+
+                <span *ngIf="getIssueAssignee(issue)">
+                  {{ getIssueAssigneeName(issue).charAt(0).toUpperCase() }}
+                </span>
+              </div>
+
+              <div class="issue-person-info">
+                <span class="issue-person-label"> Assignee </span>
+
+                <span class="issue-person-name">
+                  {{ getIssueAssigneeName(issue) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+     Create Issue Modal
+========================== -->
+
+    <div
+      class="modal-overlay"
+      *ngIf="showCreateIssueModal"
+      (click)="closeCreateIssueModal()"
+    >
+      <div class="create-issue-modal" (click)="$event.stopPropagation()">
+        <!-- Header -->
+
+        <div class="modal-header">
+          <div>
+            <h2>Create Issue</h2>
+
+            <p>Report a bug or technical problem in this project.</p>
+          </div>
+
+          <button
+            type="button"
+            class="close-btn"
+            (click)="closeCreateIssueModal()"
+          >
+            ×
+          </button>
+        </div>
+
+        <!-- Title -->
+
+        <div class="form-group">
+          <label> Issue Title </label>
+
+          <input
+            type="text"
+            [(ngModel)]="newIssue.title"
+            placeholder="e.g. Login button does not work"
+            [disabled]="isCreatingIssue"
+          />
+        </div>
+
+        <!-- Description -->
+
+        <div class="form-group">
+          <label> Description </label>
+
+          <textarea
+            [(ngModel)]="newIssue.description"
+            placeholder="Describe the issue and how it happens..."
+            rows="4"
+            [disabled]="isCreatingIssue"
+          ></textarea>
+        </div>
+
+        <!-- Assign -->
+
+        <div class="form-group">
+          <label> Assign To </label>
+
+          <select
+            [(ngModel)]="newIssue.assignedTo"
+            [disabled]="isCreatingIssue"
+          >
+            <option value="">Unassigned</option>
+
+            <option *ngFor="let member of members" [value]="member.user._id">
+              {{ member.user.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority -->
+
+        <div class="form-group">
+          <label> Priority </label>
+
+          <select [(ngModel)]="newIssue.priority" [disabled]="isCreatingIssue">
+            <option value="low">Low</option>
+
+            <option value="medium">Medium</option>
+
+            <option value="high">High</option>
+
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+
+        <!-- Severity -->
+
+        <div class="form-group">
+          <label> Severity </label>
+
+          <select [(ngModel)]="newIssue.severity" [disabled]="isCreatingIssue">
+            <option value="minor">Minor</option>
+
+            <option value="major">Major</option>
+
+            <option value="critical">Critical</option>
+
+            <option value="blocker">Blocker</option>
+          </select>
+        </div>
+
+        <!-- Error -->
+
+        <div *ngIf="issueError" class="form-error">
+          {{ issueError }}
+        </div>
+
+        <!-- Success -->
+
+        <div *ngIf="issueSuccess" class="form-success">
+          {{ issueSuccess }}
+        </div>
+
+        <!-- Actions -->
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="closeCreateIssueModal()"
+            [disabled]="isCreatingIssue"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="submit-btn"
+            (click)="createIssue()"
+            [disabled]="isCreatingIssue || !newIssue.title.trim()"
+          >
+            <span *ngIf="!isCreatingIssue"> Create Issue </span>
+
+            <span *ngIf="isCreatingIssue"> Creating... </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

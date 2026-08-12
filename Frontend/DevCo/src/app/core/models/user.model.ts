@@ -10,3 +10,11 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UserSearchResponse {
+  status: string;
+  results: number;
+  data: {
+    users: User[];
+  };
+}

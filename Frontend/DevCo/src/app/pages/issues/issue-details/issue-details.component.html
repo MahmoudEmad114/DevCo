@@ -1,0 +1,237 @@
+<div class="issue-details-page">
+  <div *ngIf="isLoading" class="state">Loading issue...</div>
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="back-btn" (click)="goBack()">Back</button>
+  </div>
+
+  <div *ngIf="!isLoading && issue" class="issue-content">
+    <button class="back-link" (click)="goBack()">← Back to Project</button>
+
+    <div class="issue-header">
+      <div class="issue-header-main">
+        <div class="issue-icon">!</div>
+
+        <div>
+          <h1>
+            {{ issue.title }}
+          </h1>
+
+          <p *ngIf="issue.project">Project: {{ getProjectName() }}</p>
+        </div>
+      </div>
+
+      <span
+        class="issue-status"
+        [class.open]="issue.status === 'open'"
+        [class.in-progress]="issue.status === 'in-progress'"
+        [class.resolved]="issue.status === 'resolved'"
+        [class.closed]="issue.status === 'closed'"
+      >
+        {{ getStatusLabel(issue.status) }}
+      </span>
+    </div>
+
+    <div class="issue-overview">
+      <div class="section-title">
+        <h2>Issue Details</h2>
+
+        <p>Information about this issue.</p>
+      </div>
+
+      <div class="description-block">
+        <span class="label"> Description </span>
+
+        <p *ngIf="issue.description">
+          {{ issue.description }}
+        </p>
+
+        <p *ngIf="!issue.description" class="empty-text">
+          No description available.
+        </p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h2>Issue Information</h2>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label"> Status </span>
+
+          <strong>
+            {{ getStatusLabel(issue.status) }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Priority </span>
+
+          <strong
+            class="priority"
+            [class.low]="issue.priority === 'low'"
+            [class.medium]="issue.priority === 'medium'"
+            [class.high]="issue.priority === 'high'"
+            [class.urgent]="issue.priority === 'urgent'"
+          >
+            {{ getPriorityLabel(issue.priority) }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Severity </span>
+
+          <strong
+            class="severity"
+            [class.minor]="issue.severity === 'minor'"
+            [class.major]="issue.severity === 'major'"
+            [class.critical]="issue.severity === 'critical'"
+            [class.blocker]="issue.severity === 'blocker'"
+          >
+            {{ getSeverityLabel(issue.severity) }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Assigned To </span>
+
+          <strong>
+            {{ getAssigneeName() }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Reported By </span>
+
+          <strong>
+            {{ getReporterName() }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Project </span>
+
+          <strong>
+            {{ getProjectName() }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Created </span>
+
+          <strong>
+            {{ issue.createdAt | date: "mediumDate" }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span class="label"> Last Updated </span>
+
+          <strong>
+            {{ issue.updatedAt | date: "mediumDate" }}
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="person-card">
+      <div class="section-title">
+        <h2>Reported By</h2>
+
+        <p>Person who reported this issue.</p>
+      </div>
+
+      <div *ngIf="reporter" class="person">
+        <div class="avatar">
+          <img
+            *ngIf="reporter.photo"
+            [src]="reporter.photo"
+            [alt]="reporter.name"
+          />
+
+          <span *ngIf="!reporter.photo">
+            {{ reporter.name.charAt(0).toUpperCase() }}
+          </span>
+        </div>
+
+        <div class="person-info">
+          <strong>
+            {{ reporter.name }}
+          </strong>
+
+          <span>
+            {{ reporter.email }}
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="!reporter" class="person">
+        <div class="avatar unassigned">?</div>
+
+        <div class="person-info">
+          <strong> Unknown </strong>
+
+          <span> Reporter information is unavailable. </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="person-card">
+      <div class="section-title">
+        <h2>Assignee</h2>
+
+        <p>Person responsible for resolving this issue.</p>
+      </div>
+
+      <div *ngIf="assignedUser" class="person">
+        <div class="avatar">
+          <img
+            *ngIf="assignedUser.photo"
+            [src]="assignedUser.photo"
+            [alt]="assignedUser.name"
+          />
+
+          <span *ngIf="!assignedUser.photo">
+            {{ assignedUser.name.charAt(0).toUpperCase() }}
+          </span>
+        </div>
+
+        <div class="person-info">
+          <strong>
+            {{ assignedUser.name }}
+          </strong>
+
+          <span>
+            {{ assignedUser.email }}
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="!assignedUser" class="person">
+        <div class="avatar unassigned">?</div>
+
+        <div class="person-info">
+          <strong> Unassigned </strong>
+
+          <span> No user assigned to this issue. </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-card">
+      <div>
+        <h3>Issue Actions</h3>
+
+        <p>
+          Issue editing, assignment and status controls will be available here.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

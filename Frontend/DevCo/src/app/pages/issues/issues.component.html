@@ -1,43 +1,215 @@
 <div class="issues-page">
-    <h2>Issues</h2>
+  <!-- =========================
+       Header
+  ========================== -->
 
-    <div *ngIf="isLoading">Loading issues...</div>
+  <div class="page-header">
+    <div>
+      <h1>Issues</h1>
 
-    <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
+      <p>Track bugs, problems, and technical issues across your projects.</p>
     </div>
+  </div>
 
-    <div *ngIf="!isLoading && issues.length === 0">
-        No issues found.
+  <!-- =========================
+       Loading
+  ========================== -->
+
+  <div *ngIf="isLoading" class="state">
+    <div class="loading-spinner"></div>
+
+    <p>Loading issues...</p>
+  </div>
+
+  <!-- =========================
+       Error
+  ========================== -->
+
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <div class="state-icon">!</div>
+
+    <h3>Something went wrong</h3>
+
+    <p>
+      {{ errorMessage }}
+    </p>
+
+    <button class="retry-btn" (click)="loadIssues()">Try Again</button>
+  </div>
+
+  <!-- =========================
+       Empty
+  ========================== -->
+
+  <div
+    *ngIf="!isLoading && !errorMessage && issues.length === 0"
+    class="state empty"
+  >
+    <div class="state-icon">!</div>
+
+    <h3>No issues yet</h3>
+
+    <p>There are no issues available for your projects.</p>
+  </div>
+
+  <!-- =========================
+       Issues
+  ========================== -->
+
+  <div
+    *ngIf="!isLoading && !errorMessage && issues.length > 0"
+    class="issues-grid"
+  >
+    <div
+      class="issue-card"
+      *ngFor="let issue of issues"
+      (click)="openIssueDetails(issue._id)"
+    >
+      <!-- =========================
+           Card Header
+      ========================== -->
+
+      <div class="issue-card-header">
+        <div class="issue-title-section">
+          <div class="issue-icon">!</div>
+
+          <div class="issue-title-wrapper">
+            <h3>
+              {{ issue.title }}
+            </h3>
+
+            <span class="project-name">
+              {{ getProjectName(issue) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Status -->
+
+        <span
+          class="status-badge"
+          [class.open]="issue.status === 'open'"
+          [class.in-progress]="issue.status === 'in-progress'"
+          [class.resolved]="issue.status === 'resolved'"
+          [class.closed]="issue.status === 'closed'"
+        >
+          {{ getStatusLabel(issue.status) }}
+        </span>
+      </div>
+
+      <!-- =========================
+           Description
+      ========================== -->
+
+      <p *ngIf="issue.description" class="issue-description">
+        {{ issue.description }}
+      </p>
+
+      <p *ngIf="!issue.description" class="issue-description empty-description">
+        No description available.
+      </p>
+
+      <!-- =========================
+           Badges
+      ========================== -->
+
+      <div class="issue-badges">
+        <!-- Priority -->
+
+        <span
+          class="priority-badge"
+          [class.low]="issue.priority === 'low'"
+          [class.medium]="issue.priority === 'medium'"
+          [class.high]="issue.priority === 'high'"
+          [class.urgent]="issue.priority === 'urgent'"
+        >
+          Priority:
+          {{ getPriorityLabel(issue.priority) }}
+        </span>
+
+        <!-- Severity -->
+
+        <span
+          class="severity-badge"
+          [class.minor]="issue.severity === 'minor'"
+          [class.major]="issue.severity === 'major'"
+          [class.critical]="issue.severity === 'critical'"
+          [class.blocker]="issue.severity === 'blocker'"
+        >
+          Severity:
+          {{ getSeverityLabel(issue.severity) }}
+        </span>
+      </div>
+
+      <!-- =========================
+           Divider
+      ========================== -->
+
+      <div class="card-divider"></div>
+
+      <!-- =========================
+           People
+      ========================== -->
+
+      <div class="issue-card-footer">
+        <!-- Reporter -->
+
+        <div class="person">
+          <div class="avatar">
+            <img
+              *ngIf="getReporter(issue)?.photo"
+              [src]="getReporter(issue)?.photo"
+              [alt]="getReporterName(issue)"
+            />
+
+            <span *ngIf="!getReporter(issue)"> ? </span>
+
+            <span *ngIf="getReporter(issue)">
+              {{ getReporterName(issue).charAt(0).toUpperCase() }}
+            </span>
+          </div>
+
+          <div class="person-info">
+            <span class="person-label"> Reported by </span>
+
+            <strong>
+              {{ getReporterName(issue) }}
+            </strong>
+          </div>
+        </div>
+
+        <!-- Assignee -->
+
+        <div class="person">
+          <div class="avatar">
+            <img
+              *ngIf="getAssignee(issue)?.photo"
+              [src]="getAssignee(issue)?.photo"
+              [alt]="getAssigneeName(issue)"
+            />
+
+            <span *ngIf="!getAssignee(issue)"> ? </span>
+
+            <span *ngIf="getAssignee(issue)">
+              {{ getAssigneeName(issue).charAt(0).toUpperCase() }}
+            </span>
+          </div>
+
+          <div class="person-info">
+            <span class="person-label"> Assigned to </span>
+
+            <strong>
+              {{ getAssigneeName(issue) }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================
+           View Details
+      ========================== -->
+
+      <div class="view-details">View Details →</div>
     </div>
-
-    <table *ngIf="!isLoading && issues.length > 0" class="issues-table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Severity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let issue of issues">
-                <td>{{ issue.title }}</td>
-                <td>
-                    <select [value]="issue.status" (change)="onStatusChange(issue, $any($event.target).value)">
-                        <option value="open">Open</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
-                    </select>
-                </td>
-                <td>{{ issue.priority }}</td>
-                <td>{{ issue.severity }}</td>
-                <td>
-                    <button (click)="onDelete(issue)">Delete</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+  </div>
 </div>

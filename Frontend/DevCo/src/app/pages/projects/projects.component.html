@@ -1,0 +1,68 @@
+<div class="projects-page">
+  <div class="projects-header">
+    <div>
+      <h1>Projects</h1>
+      <p>All your projects</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="state">Loading projects...</div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoading && errorMessage" class="state error">
+    <h3>Something went wrong</h3>
+    <p>{{ errorMessage }}</p>
+
+    <button (click)="loadProjects()">Retry</button>
+  </div>
+
+  <!-- Empty -->
+  <div
+    *ngIf="!isLoading && !errorMessage && projects.length === 0"
+    class="state"
+  >
+    <h3>No projects yet</h3>
+    <p>You don't have any projects yet.</p>
+  </div>
+
+  <!-- Projects -->
+  <div
+    *ngIf="!isLoading && !errorMessage && projects.length > 0"
+    class="projects-grid"
+  >
+    <div
+      class="project-card"
+      *ngFor="let project of projects"
+      (click)="openProject(project._id)"
+    >
+      <div class="project-card-top">
+        <div class="project-icon">
+          {{ project.name.charAt(0).toUpperCase() }}
+        </div>
+
+        <span
+          class="project-status"
+          [class.planning]="project.status === 'planning'"
+          [class.active]="project.status === 'active'"
+          [class.on-hold]="project.status === 'on_hold'"
+          [class.completed]="project.status === 'completed'"
+          [class.archived]="project.status === 'archived'"
+        >
+          {{ project.status }}
+        </span>
+      </div>
+
+      <h3>{{ project.name }}</h3>
+
+      <p>
+        {{ project.description || "No description available." }}
+      </p>
+
+      <div class="project-card-footer">
+        <span>View Project</span>
+        <span>→</span>
+      </div>
+    </div>
+  </div>
+</div>

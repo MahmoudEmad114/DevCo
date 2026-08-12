@@ -1,7 +1,20 @@
 <div class="workspace-details-page">
-  <div *ngIf="isLoading" class="state">Loading workspace...</div>
+  <!-- =========================
+       Loading Workspace
+  ========================== -->
 
-  <div *ngIf="!isLoading && errorMessage" class="state error">
+  <div *ngIf="isLoading" class="state">
+    <div class="loading-spinner"></div>
+    <p>Loading workspace...</p>
+  </div>
+
+  <!-- =========================
+       Workspace Error
+  ========================== -->
+
+  <div *ngIf="!isLoading && errorMessage" class="state error-state-main">
+    <div class="state-icon">!</div>
+
     <h3>Something went wrong</h3>
 
     <p>
@@ -11,8 +24,20 @@
     <button class="back-btn" (click)="goBack()">Back to Workspaces</button>
   </div>
 
+  <!-- =========================
+       Workspace Content
+  ========================== -->
+
   <div *ngIf="!isLoading && workspace" class="workspace-content">
-    <button class="back-link" (click)="goBack()">← Back to Workspaces</button>
+    <!-- Back -->
+    <button class="back-link" (click)="goBack()">
+      <span>←</span>
+      Back to Workspaces
+    </button>
+
+    <!-- =========================
+         Workspace Header
+    ========================== -->
 
     <div class="workspace-header">
       <div class="workspace-title">
@@ -20,7 +45,7 @@
           {{ workspace.name.charAt(0).toUpperCase() }}
         </div>
 
-        <div>
+        <div class="workspace-title-info">
           <h1>
             {{ workspace.name }}
           </h1>
@@ -32,8 +57,17 @@
       </div>
     </div>
 
+    <!-- =========================
+         Workspace Overview
+    ========================== -->
+
     <div class="overview-card">
-      <h2>Workspace Overview</h2>
+      <div class="card-title">
+        <div>
+          <h2>Workspace Overview</h2>
+          <p>Basic information about this workspace.</p>
+        </div>
+      </div>
 
       <div class="info-grid">
         <div class="info-item">
@@ -62,27 +96,472 @@
       </div>
     </div>
 
-    <div class="coming-section">
-      <div>
-        <span class="section-icon">◈</span>
+    <!-- =========================
+         Projects
+    ========================== -->
 
+    <div class="section-card projects-section">
+      <div class="section-header">
         <div>
-          <h3>Projects</h3>
+          <h2>Projects</h2>
 
-          <p>Projects inside this workspace will appear here.</p>
+          <p>Projects inside this workspace.</p>
+        </div>
+
+        <button class="primary-btn" (click)="openCreateProjectModal()">
+          <span>+</span>
+          Create Project
+        </button>
+      </div>
+
+      <!-- Projects Loading -->
+
+      <div *ngIf="isProjectsLoading" class="section-state">
+        <div class="loading-spinner small"></div>
+
+        <p>Loading projects...</p>
+      </div>
+
+      <!-- Projects Error -->
+
+      <div
+        *ngIf="!isProjectsLoading && projectsError"
+        class="section-state error"
+      >
+        <div class="state-icon small">!</div>
+
+        <p>
+          {{ projectsError }}
+        </p>
+
+        <button class="retry-btn" (click)="loadProjects()">Retry</button>
+      </div>
+
+      <!-- Empty Projects -->
+
+      <div
+        *ngIf="!isProjectsLoading && !projectsError && projects.length === 0"
+        class="section-state"
+      >
+        <div class="empty-icon">◈</div>
+
+        <h3>No projects yet</h3>
+
+        <p>Create your first project to start collaborating.</p>
+      </div>
+
+      <!-- Projects List -->
+
+      <div
+        *ngIf="!isProjectsLoading && !projectsError && projects.length > 0"
+        class="projects-list"
+      >
+        <div
+          class="project-card"
+          *ngFor="let project of projects"
+          (click)="openProject(project._id)"
+        >
+          <div class="project-card-header">
+            <div class="project-icon">
+              {{ project.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="project-title">
+              <h3>
+                {{ project.name }}
+              </h3>
+
+              <span
+                class="project-status"
+                [class.planning]="project.status === 'planning'"
+                [class.active]="project.status === 'active'"
+                [class.on-hold]="project.status === 'on_hold'"
+                [class.completed]="project.status === 'completed'"
+                [class.archived]="project.status === 'archived'"
+              >
+                {{ project.status }}
+              </span>
+            </div>
+          </div>
+
+          <p class="project-description">
+            {{ project.description || "No description available." }}
+          </p>
+
+          <div class="project-dates">
+            <div class="project-date">
+              <span> Start </span>
+
+              <strong>
+                {{ project.startDate | date: "mediumDate" }}
+              </strong>
+            </div>
+
+            <div class="project-date">
+              <span> Deadline </span>
+
+              <strong>
+                {{ project.deadline | date: "mediumDate" }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="project-arrow">→</div>
         </div>
       </div>
     </div>
 
-    <div class="coming-section">
-      <div>
-        <span class="section-icon">👥</span>
+    <!-- =========================
+         Members
+    ========================== -->
 
+    <div class="section-card members-section">
+      <div class="section-header">
         <div>
-          <h3>Members</h3>
+          <h2>Members</h2>
 
-          <p>Workspace members will appear here.</p>
+          <p>People who are part of this workspace.</p>
         </div>
+
+        <button class="primary-btn" (click)="openInviteModal()">
+          <span>+</span>
+          Invite Member
+        </button>
+      </div>
+
+      <!-- Members Loading -->
+
+      <div *ngIf="isMembersLoading" class="section-state">
+        <div class="loading-spinner small"></div>
+
+        <p>Loading members...</p>
+      </div>
+
+      <!-- Members Error -->
+
+      <div
+        *ngIf="!isMembersLoading && membersError"
+        class="section-state error"
+      >
+        <div class="state-icon small">!</div>
+
+        <p>
+          {{ membersError }}
+        </p>
+
+        <button class="retry-btn" (click)="loadMembers()">Retry</button>
+      </div>
+
+      <!-- Empty Members -->
+
+      <div
+        *ngIf="!isMembersLoading && !membersError && members.length === 0"
+        class="section-state"
+      >
+        <div class="empty-icon">👥</div>
+
+        <h3>No members yet</h3>
+
+        <p>Invite people to start collaborating.</p>
+      </div>
+
+      <!-- Members List -->
+
+      <div
+        *ngIf="!isMembersLoading && !membersError && members.length > 0"
+        class="members-list"
+      >
+        <div class="member-row" *ngFor="let member of members">
+          <div class="member-avatar">
+            {{ member.user.name.charAt(0).toUpperCase() }}
+          </div>
+
+          <div class="member-info">
+            <strong>
+              {{ member.user.name }}
+            </strong>
+
+            <span>
+              {{ member.user.email }}
+            </span>
+          </div>
+
+          <div
+            class="member-role"
+            [class.owner]="member.role === 'owner'"
+            [class.admin]="member.role === 'admin'"
+            [class.member]="member.role === 'member'"
+          >
+            {{ member.role }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       INVITE MEMBER MODAL
+  ====================================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showInviteModal"
+    (click)="closeInviteModal()"
+  >
+    <div class="modal" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+
+      <div class="modal-header">
+        <div>
+          <h2>Invite Member</h2>
+
+          <p>Invite a user to join this workspace.</p>
+        </div>
+
+        <button class="close-btn" type="button" (click)="closeInviteModal()">
+          ×
+        </button>
+      </div>
+
+      <!-- Search -->
+
+      <div class="form-group">
+        <label> Search User </label>
+
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="searchUsers()"
+          placeholder="Search by name or email..."
+          [disabled]="isInviting"
+        />
+      </div>
+
+      <!-- Searching -->
+
+      <div *ngIf="isSearching" class="search-state">Searching users...</div>
+
+      <!-- Search Results -->
+
+      <div
+        *ngIf="!isSearching && searchResults.length > 0"
+        class="search-results"
+      >
+        <div
+          class="search-user"
+          *ngFor="let user of searchResults"
+          (click)="selectUser(user)"
+        >
+          <div class="search-avatar">
+            {{ user.name.charAt(0).toUpperCase() }}
+          </div>
+
+          <div class="search-user-info">
+            <strong>
+              {{ user.name }}
+            </strong>
+
+            <span>
+              {{ user.email }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected User -->
+
+      <div *ngIf="selectedUser" class="selected-user">
+        <div class="selected-avatar">
+          {{ selectedUser.name.charAt(0).toUpperCase() }}
+        </div>
+
+        <div class="selected-info">
+          <strong>
+            {{ selectedUser.name }}
+          </strong>
+
+          <span>
+            {{ selectedUser.email }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="remove-selected"
+          (click)="selectedUser = null; searchQuery = ''"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Error -->
+
+      <div *ngIf="inviteError" class="form-message error">
+        {{ inviteError }}
+      </div>
+
+      <!-- Success -->
+
+      <div *ngIf="inviteSuccess" class="form-message success">
+        {{ inviteSuccess }}
+      </div>
+
+      <!-- Actions -->
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="closeInviteModal()"
+          [disabled]="isInviting"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="primary-btn"
+          (click)="inviteMember()"
+          [disabled]="isInviting || !selectedUser"
+        >
+          <span *ngIf="!isInviting"> Send Invitation </span>
+
+          <span *ngIf="isInviting"> Sending... </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       CREATE PROJECT MODAL
+  ====================================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showCreateProjectModal"
+    (click)="closeCreateProjectModal()"
+  >
+    <div class="modal create-project-modal" (click)="$event.stopPropagation()">
+      <!-- Header -->
+
+      <div class="modal-header">
+        <div>
+          <h2>Create Project</h2>
+
+          <p>Create a new project inside this workspace.</p>
+        </div>
+
+        <button
+          class="close-btn"
+          type="button"
+          (click)="closeCreateProjectModal()"
+        >
+          ×
+        </button>
+      </div>
+
+      <!-- Project Name -->
+
+      <div class="form-group">
+        <label> Project Name </label>
+
+        <input
+          type="text"
+          [(ngModel)]="newProject.name"
+          placeholder="Enter project name"
+          [disabled]="isCreatingProject"
+        />
+      </div>
+
+      <!-- Description -->
+
+      <div class="form-group">
+        <label> Description </label>
+
+        <textarea
+          [(ngModel)]="newProject.description"
+          placeholder="Describe your project..."
+          rows="4"
+          [disabled]="isCreatingProject"
+        ></textarea>
+      </div>
+
+      <!-- Status -->
+
+      <div class="form-group">
+        <label> Status </label>
+
+        <select [(ngModel)]="newProject.status" [disabled]="isCreatingProject">
+          <option value="planning">Planning</option>
+
+          <option value="active">Active</option>
+
+          <option value="on_hold">On Hold</option>
+
+          <option value="completed">Completed</option>
+
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+
+      <!-- Dates -->
+
+      <div class="date-grid">
+        <div class="form-group">
+          <label> Start Date </label>
+
+          <input
+            type="date"
+            [(ngModel)]="newProject.startDate"
+            [disabled]="isCreatingProject"
+          />
+        </div>
+
+        <div class="form-group">
+          <label> Deadline </label>
+
+          <input
+            type="date"
+            [(ngModel)]="newProject.deadline"
+            [disabled]="isCreatingProject"
+          />
+        </div>
+      </div>
+
+      <!-- Error -->
+
+      <div *ngIf="createProjectError" class="form-message error">
+        {{ createProjectError }}
+      </div>
+
+      <!-- Success -->
+
+      <div *ngIf="createProjectSuccess" class="form-message success">
+        {{ createProjectSuccess }}
+      </div>
+
+      <!-- Actions -->
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="closeCreateProjectModal()"
+          [disabled]="isCreatingProject"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="primary-btn"
+          (click)="createProject()"
+          [disabled]="isCreatingProject"
+        >
+          <span *ngIf="!isCreatingProject"> Create Project </span>
+
+          <span *ngIf="isCreatingProject"> Creating... </span>
+        </button>
       </div>
     </div>
   </div>
