@@ -1,8 +1,4 @@
 <div class="chat-page">
-  <!-- =========================
-       Header
-  ========================== -->
-
   <div class="chat-header">
     <div class="chat-header-left">
       <button class="back-button" type="button" (click)="goBack()">←</button>
@@ -20,18 +16,9 @@
       Live
     </div>
   </div>
-
-  <!-- =========================
-       Error
-  ========================== -->
-
   <div *ngIf="errorMessage" class="chat-error">
     {{ errorMessage }}
   </div>
-
-  <!-- =========================
-       Messages
-  ========================== -->
 
   <div class="messages-container" #messagesContainer>
     <!-- Loading -->
@@ -92,10 +79,6 @@
 
     <span class="typing-text"> {{ typingUserName }} is typing... </span>
   </div>
-
-  <!-- =========================
-       Input
-  ========================== -->
 
   <div class="message-input-area">
     <textarea

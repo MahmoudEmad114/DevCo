@@ -12,6 +12,9 @@ import { NotificationService }
 import { User }
   from '../../../core/models/user.model';
 
+  import { environment }
+from '../../../../environments/environment';
+
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -44,6 +47,14 @@ export class HeaderComponent
         this.unreadCount = count;
 
       });
+
+  }
+
+  getUserPhoto(photo?: string): string {
+
+    return `${environment.socketUrl}/img/users/${
+      photo || 'default-avatar.jpg'
+    }`;
 
   }
 

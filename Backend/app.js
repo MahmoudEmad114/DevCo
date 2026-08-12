@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+app.use(express.static('public'));
 app.use(express.json());
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:4200',

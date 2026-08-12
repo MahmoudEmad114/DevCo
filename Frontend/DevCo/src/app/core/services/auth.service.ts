@@ -15,9 +15,6 @@ export class AuthService {
 
   constructor(private api: ApiService) {}
 
-  // =========================
-  // Signup
-  // =========================
   signup(data: {
     name: string;
     email: string;
@@ -33,9 +30,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Login
-  // =========================
   login(
     email: string,
     password: string
@@ -52,9 +46,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Logout
-  // =========================
   logout(): Observable<any> {
 
     return this.api.get<any>(
@@ -66,9 +57,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Forgot Password
-  // =========================
   forgotPassword(email: string): Observable<any> {
 
     return this.api.post<any>(
@@ -77,9 +65,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Reset Password
-  // =========================
   resetPassword(
     token: string,
     password: string,
@@ -97,9 +82,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Update Password
-  // =========================
   updatePassword(
     passwordCurrent: string,
     password: string,
@@ -118,9 +100,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Get Current User
-  // =========================
   getMe(): Observable<{ status: string; data: { user: User } }> {
 
     return this.api.get<{ status: string; data: { user: User } }>(
@@ -135,16 +114,10 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Get Token
-  // =========================
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // =========================
-  // Get Stored User
-  // =========================
   getCurrentUser(): User | null {
 
     const user = localStorage.getItem(this.USER_KEY);
@@ -160,16 +133,10 @@ export class AuthService {
     }
   }
 
-  // =========================
-  // Check Authentication
-  // =========================
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  // =========================
-  // Store Auth Data
-  // =========================
   private handleAuthSuccess(response: AuthResponse): void {
 
     localStorage.setItem(
@@ -183,9 +150,6 @@ export class AuthService {
     );
   }
 
-  // =========================
-  // Clear Auth Data
-  // =========================
   private clearAuthData(): void {
 
     localStorage.removeItem(this.TOKEN_KEY);
