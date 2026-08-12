@@ -19,7 +19,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 
-import { IssuesComponent } from './pages/issues/issues.component';
+
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
@@ -28,6 +28,13 @@ import { HeaderComponent } from './shared/components/header/header.component';
 
 import { WorkspacesComponent } from './pages/workspaces/workspaces.component';
 import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/workspace-details.component';
+import { ProjectDetailsComponent } from './pages/projects/project-details/project-details.component';
+import { ProjectsComponent } from './pages/projects/projects.component';
+import { TaskDetailsComponent } from './pages/tasks/task-details/task-details.component';
+import { TasksComponent } from './pages/tasks/tasks.component';
+import { IssueDetailsComponent } from './pages/issues/issue-details/issue-details.component';
+
+import { IssueListComponent } from './pages/issues/issues.component'
 
 @NgModule({
   declarations: [
@@ -40,7 +47,6 @@ import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/
 
     DashboardComponent,
 
-    IssuesComponent,
     NotificationsComponent,
 
     MainLayoutComponent,
@@ -48,7 +54,13 @@ import { WorkspaceDetailsComponent } from './pages/workspaces/workspace-details/
     HeaderComponent,
 
     WorkspacesComponent,
-    WorkspaceDetailsComponent
+    WorkspaceDetailsComponent,
+    ProjectDetailsComponent,
+    ProjectsComponent,
+    TaskDetailsComponent,
+    TasksComponent,
+    IssueDetailsComponent,
+    IssueListComponent
   ],
 
   imports: [

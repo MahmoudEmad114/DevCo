@@ -111,3 +111,37 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
         data: null
     })
 })
+
+exports.searchUsers = catchAsync(async (req, res, next) => {
+    const { query } = req.query;
+
+    if (!query || query.trim().length < 2) {
+        return next(
+            new AppError(
+                'Search query must be at least 2 characters',
+                400
+            )
+        );
+    }
+
+    const searchRegex = new RegExp(query.trim(), 'i');
+
+    const users = await User.find({
+        _id: { $ne: req.user._id },
+        isActive: true,
+        $or: [
+            { name: searchRegex },
+            { email: searchRegex }
+        ]
+    })
+        .select('name email photo bio skills')
+        .limit(10);
+
+    res.status(200).json({
+        status: 'success',
+        results: users.length,
+        data: {
+            users
+        }
+    });
+});

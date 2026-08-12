@@ -2,54 +2,146 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiService } from './api.service';
-import { Issue } from '../models/issue.model';
+
+import {
+  Issue,
+  IssuesResponse,
+  IssueResponse,
+  IssueStatus,
+  IssuePriority,
+  IssueSeverity
+} from '../models/issue.model';
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root'
 })
 export class IssueService {
-    constructor(private api: ApiService) {}
 
-getAllIssues(): Observable<{
-    status: string;
-    results: number;
-    data: { issues: Issue[] };
-}> {
-    return this.api.get('/issues');
-}
+  constructor(
+    private api: ApiService
+  ) {}
 
-getIssue(id: string): Observable<{ status: string; data: { issue: Issue } }> {
-    return this.api.get(`/issues/${id}`);
-}
+  // =========================
+  // Get All Issues
+  // =========================
 
-createIssue(
-    data: Partial<Issue>,
-): Observable<{ status: string; data: { issue: Issue } }> {
-    return this.api.post('/issues', data);
-}
+  getAllIssues(): Observable<IssuesResponse> {
+    return this.api.get<IssuesResponse>(
+      '/issues'
+    );
+  }
 
-updateIssue(
-    id: string,
-    data: Partial<Issue>,
-): Observable<{ status: string; data: { issue: Issue } }> {
-    return this.api.patch(`/issues/${id}`, data);
-}
+  // =========================
+  // Get Issues By Project
+  // =========================
 
-deleteIssue(id: string): Observable<any> {
-    return this.api.delete(`/issues/${id}`);
-}
+  getIssuesByProject(
+    projectId: string
+  ): Observable<IssuesResponse> {
 
-assignIssue(
-    id: string,
-    assignedTo: string,
-): Observable<{ status: string; data: { issue: Issue } }> {
-    return this.api.patch(`/issues/${id}/assign`, { assignedTo });
-}
+    return this.api.get<IssuesResponse>(
+      `/issues?project=${projectId}`
+    );
+  }
 
-changeIssueStatus(
-    id: string,
-    status: string,
-): Observable<{ status: string; data: { issue: Issue } }> {
-    return this.api.patch(`/issues/${id}/status`, { status });
-}
+  // =========================
+  // Get Single Issue
+  // =========================
+
+  getIssue(
+    issueId: string
+  ): Observable<IssueResponse> {
+
+    return this.api.get<IssueResponse>(
+      `/issues/${issueId}`
+    );
+  }
+
+  // =========================
+  // Create Issue
+  // =========================
+
+  createIssue(data: {
+    title: string;
+    description?: string;
+    project: string;
+    assignedTo?: string;
+    priority?: IssuePriority;
+    severity?: IssueSeverity;
+  }): Observable<IssueResponse> {
+
+    return this.api.post<IssueResponse>(
+      '/issues',
+      data
+    );
+  }
+
+  // =========================
+  // Update Issue
+  // =========================
+
+  updateIssue(
+    issueId: string,
+    data: Partial<{
+      title: string;
+      description: string;
+      assignedTo: string;
+      priority: IssuePriority;
+      severity: IssueSeverity;
+      status: IssueStatus;
+    }>
+  ): Observable<IssueResponse> {
+
+    return this.api.patch<IssueResponse>(
+      `/issues/${issueId}`,
+      data
+    );
+  }
+
+  // =========================
+  // Delete Issue
+  // =========================
+
+  deleteIssue(
+    issueId: string
+  ): Observable<any> {
+
+    return this.api.delete<any>(
+      `/issues/${issueId}`
+    );
+  }
+
+  // =========================
+  // Assign Issue
+  // =========================
+
+  assignIssue(
+    issueId: string,
+    assignedTo: string
+  ): Observable<IssueResponse> {
+
+    return this.api.patch<IssueResponse>(
+      `/issues/${issueId}/assign`,
+      {
+        assignedTo
+      }
+    );
+  }
+
+  // =========================
+  // Change Status
+  // =========================
+
+  changeIssueStatus(
+    issueId: string,
+    status: IssueStatus
+  ): Observable<IssueResponse> {
+
+    return this.api.patch<IssueResponse>(
+      `/issues/${issueId}/status`,
+      {
+        status
+      }
+    );
+  }
 }
