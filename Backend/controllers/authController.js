@@ -115,18 +115,83 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    const message = `Forgot your password Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email! `;
+    // const message = `Forgot your password Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email! `;
+    const message = `Hello ${user.name}, You requested to reset your password. Click the link to reset your password: ${resetURL}This link is valid for 10 minutes. If you did not request a password reset, please ignore this email.
+    DevCo Team`;
+
+    const html =
+        `
+        <div style="
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #f9fafb;
+            border-radius: 12px;
+        ">
+
+            <h2 style="color: #111827;">
+                Reset Your DevCollab Password
+            </h2>
+
+            <p style="color: #4b5563;">
+                Hello ${user.name},
+            </p>
+
+            <p style="color: #4b5563;">
+                You requested to reset your DevCollab password.
+            </p>
+
+            <p style="color: #4b5563;">
+                Click the button below to create a new password:
+            </p>
+
+            <div style="margin: 30px 0;">
+                <a
+                    href="${resetURL}"
+                    style="
+                        display: inline-block;
+                        padding: 14px 24px;
+                        background-color: #2563eb;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        font-weight: bold;
+                    "
+                >
+                    Reset Password
+                </a>
+            </div>
+
+            <p style="color: #6b7280;">
+                This link will expire in 10 minutes.
+            </p>
+
+            <p style="color: #6b7280;">
+                If you did not request a password reset,
+                you can safely ignore this email.
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #e5e7eb;">
+
+            <p style="font-size: 12px; color: #9ca3af;">
+                DevCollab Team
+            </p>
+
+        </div>
+    `
 
     try {
         await sendEmail({
             email: user.email,
-            subject: 'Your password reset token (valid for 10 min)',
-            message
+            subject: 'Reset your DevCo password',
+            message,
+            html
         })
 
         res.status(200).json({
             status: 'success',
-            message: 'Token sent to email!'
+            message: 'Password reset link sent to your email!'
         })
     } catch (err) {
         user.passwordResetToken = undefined;
@@ -151,7 +216,11 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
     await user.save();
 
-    createSendToken(user, 200, res);
+    // createSendToken(user, 200, res);
+    res.status(200).json({
+        status: 'success',
+        message: 'Password reset successfully. Please login with your new password.'
+    });
 })
 
 exports.updatePassword = catchAsync(async (req, res, next) => {

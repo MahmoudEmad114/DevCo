@@ -69,17 +69,18 @@ export class AuthService {
     token: string,
     password: string,
     passwordConfirm: string
-  ): Observable<AuthResponse> {
+  ): Observable<any> {
 
-    return this.api.post<AuthResponse>(
+    return this.api.post<any>(
       `/auth/resetPassword/${token}`,
       {
         password,
         passwordConfirm
       }
-    ).pipe(
-      tap(response => this.handleAuthSuccess(response))
-    );
+    )
+    // .pipe(
+    //   tap(response => this.handleAuthSuccess(response))
+    // );
   }
 
   updatePassword(
