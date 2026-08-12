@@ -1,9 +1,11 @@
 const ProjectMember = require('../models/projectMemberModel');
 const WorkspaceMember = require('../models/workspaceMemberModel');
 const Workspace = require('../models/workspaceModel');
+const Project = require('../models/projectModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const createNotification = require('../utils/notification');
 
 const checkWorkspaceMembership = async (workspaceId, userId) => {
     const workspace = await Workspace.findById(workspaceId);
@@ -32,21 +34,103 @@ const checkProjectMembershipAccepted = async (projectId, userId) => {
     });
 };
 
-exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
+// exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
 
+//     const inviterMembership = await checkWorkspaceMembership(
+//         req.params.workspaceId,
+//         req.user._id
+//     );
+
+//     if (!inviterMembership || !['owner', 'admin'].includes(inviterMembership.role)) {
+//         return next(
+//             new AppError(
+//                 'Only owner/admin can invite members',
+//                 403
+//             )
+//         );
+//     }
+//     const { userId } = req.body;
+
+//     if (!userId) {
+//         return next(
+//             new AppError(
+//                 'userId is required',
+//                 400
+//             )
+//         );
+//     }
+
+//     const existing = await WorkspaceMember.findOne({
+//         workspace: req.params.workspaceId,
+//         user: userId
+//     });
+
+//     if (existing) {
+//         return next(
+//             new AppError(
+//                 `User already has status: ${existing.status} in this workspace`,
+//                 400
+//             )
+//         );
+//     }
+
+//     const invite = await WorkspaceMember.create({
+//         workspace: req.params.workspaceId,
+//         user: userId,
+//         role: 'member',
+//         status: 'accepted'
+//     });
+
+//     const workspace = await Workspace.findById(
+//         req.params.workspaceId
+//     );
+
+//     if (!workspace) {
+//         return next(
+//             new AppError('Workspace not found', 404)
+//         );
+//     }
+
+
+
+//     const io = req.app.get('io');
+//     await createNotification({
+//         recipient: userId,
+//         sender: req.user._id,
+//         type: 'workspace-added',
+//         message: `You have been added to workspace "${workspace.name}"`,
+//         relatedItem: workspace._id,
+//         relatedItemType: 'Workspace'
+//     }, io);
+
+//     res.status(201).json({
+//         status: 'success',
+//         data: {
+//             invite
+//         }
+//     });
+
+// });
+
+exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
+    // Check requester permissions
     const inviterMembership = await checkWorkspaceMembership(
         req.params.workspaceId,
         req.user._id
     );
 
-    if (!inviterMembership || !['owner', 'admin'].includes(inviterMembership.role)) {
+    if (
+        !inviterMembership ||
+        !['owner', 'admin'].includes(inviterMembership.role)
+    ) {
         return next(
             new AppError(
-                'Only owner/admin can invite members',
+                'Only owner/admin can add members',
                 403
             )
         );
     }
+
     const { userId } = req.body;
 
     if (!userId) {
@@ -58,6 +142,21 @@ exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
         );
     }
 
+    // Check workspace exists
+    const workspace = await Workspace.findById(
+        req.params.workspaceId
+    );
+
+    if (!workspace) {
+        return next(
+            new AppError(
+                'Workspace not found',
+                404
+            )
+        );
+    }
+
+    // Check if user already exists in workspace
     const existing = await WorkspaceMember.findOne({
         workspace: req.params.workspaceId,
         user: userId
@@ -66,26 +165,42 @@ exports.inviteToWorkspace = catchAsync(async (req, res, next) => {
     if (existing) {
         return next(
             new AppError(
-                `User already has status: ${existing.status} in this workspace`,
+                'User is already a member of this workspace',
                 400
             )
         );
     }
 
-    const invite = await WorkspaceMember.create({
+    // Add user directly as accepted member
+    const member = await WorkspaceMember.create({
         workspace: req.params.workspaceId,
         user: userId,
         role: 'member',
-        status: 'pending'
+        status: 'accepted',
+        joinedAt: Date.now()
     });
+
+    // Send notification
+    const io = req.app.get('io');
+
+    await createNotification(
+        {
+            recipient: userId,
+            sender: req.user._id,
+            type: 'workspace-added',
+            message: `You have been added to workspace "${workspace.name}"`,
+            relatedItem: workspace._id,
+            relatedItemType: 'Workspace'
+        },
+        io
+    );
 
     res.status(201).json({
         status: 'success',
         data: {
-            invite
+            member
         }
     });
-
 });
 
 exports.acceptWorkspaceInvite = catchAsync(async (req, res, next) => {
@@ -289,6 +404,66 @@ exports.getWorkspaceMembers = catchAsync(async (req, res, next) => {
 
 });
 
+// exports.inviteToProject = catchAsync(async (req, res, next) => {
+
+//     const inviterMembership = await checkProjectMembershipAccepted(
+//         req.params.projectId,
+//         req.user._id
+//     );
+
+//     if (
+//         !inviterMembership ||
+//         inviterMembership.role !== 'project_manager'
+//     ) {
+//         return next(
+//             new AppError(
+//                 'Only the project manager can invite members',
+//                 403
+//             )
+//         );
+//     }
+
+//     const { userId } = req.body;
+
+//     if (!userId) {
+//         return next(
+//             new AppError(
+//                 'userId is required',
+//                 400
+//             )
+//         );
+//     }
+
+//     const existing = await ProjectMember.findOne({
+//         project: req.params.projectId,
+//         user: userId
+//     });
+
+//     if (existing) {
+//         return next(
+//             new AppError(
+//                 `User already has status: ${existing.status} in this project`,
+//                 400
+//             )
+//         );
+//     }
+
+//     const invite = await ProjectMember.create({
+//         project: req.params.projectId,
+//         user: userId,
+//         role: 'member',
+//         status: 'accepted'
+//     });
+
+//     res.status(201).json({
+//         status: 'success',
+//         data: {
+//             invite
+//         }
+//     });
+
+// });
+
 exports.inviteToProject = catchAsync(async (req, res, next) => {
 
     const inviterMembership = await checkProjectMembershipAccepted(
@@ -302,7 +477,7 @@ exports.inviteToProject = catchAsync(async (req, res, next) => {
     ) {
         return next(
             new AppError(
-                'Only the project manager can invite members',
+                'Only the project manager can add members',
                 403
             )
         );
@@ -319,6 +494,37 @@ exports.inviteToProject = catchAsync(async (req, res, next) => {
         );
     }
 
+    // Get project
+    const project = await Project.findById(
+        req.params.projectId
+    );
+
+    if (!project) {
+        return next(
+            new AppError(
+                'Project not found',
+                404
+            )
+        );
+    }
+
+    // Check that user is an accepted workspace member
+    const workspaceMembership = await WorkspaceMember.findOne({
+        workspace: project.workspace,
+        user: userId,
+        status: 'accepted'
+    });
+
+    if (!workspaceMembership) {
+        return next(
+            new AppError(
+                'User must be a member of the workspace before being added to the project',
+                400
+            )
+        );
+    }
+
+    // Check existing project membership
     const existing = await ProjectMember.findOne({
         project: req.params.projectId,
         user: userId
@@ -333,20 +539,30 @@ exports.inviteToProject = catchAsync(async (req, res, next) => {
         );
     }
 
-    const invite = await ProjectMember.create({
-        project: req.params.projectId,
+    const member = await ProjectMember.create({
+        project: project._id,
         user: userId,
         role: 'member',
-        status: 'pending'
+        status: 'accepted'
     });
+
+    const io = req.app.get('io');
+
+    await createNotification({
+        recipient: userId,
+        sender: req.user._id,
+        type: 'project-added',
+        message: `You have been added to project "${project.name}"`,
+        relatedItem: project._id,
+        relatedItemType: 'Project'
+    }, io);
 
     res.status(201).json({
         status: 'success',
         data: {
-            invite
+            member
         }
     });
-
 });
 
 exports.acceptProjectInvite = catchAsync(async (req, res, next) => {

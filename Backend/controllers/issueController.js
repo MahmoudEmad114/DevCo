@@ -84,7 +84,7 @@ exports.createIssue = catchAsync(async (req, res, next) => {
 
     });
 
-    if (req.body.assignedTo) {
+    if (issue.assignedTo) {
         const io = req.app.get('io');
 
         await createNotification({
@@ -538,23 +538,6 @@ exports.changeIssueStatus = catchAsync(async (req, res, next) => {
     )
         .populate('assignedTo', 'name email')
         .populate('reportedBy', 'name email');
-
-    if (
-        oldStatus !== status &&
-        issue.assignedTo
-    ) {
-
-        const io = req.app.get('io');
-
-        await createNotification({
-            recipient: issue.assignedTo,
-            sender: req.user._id,
-            type: 'status-changed',
-            message: `Issue "${issue.title}" status changed from ${oldStatus} to ${status}`,
-            relatedItem: issue._id,
-            relatedItemType: 'Issue'
-        }, io);
-    }
 
     res.status(200).json({
 

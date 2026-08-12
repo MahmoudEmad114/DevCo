@@ -25,7 +25,8 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:4200'
+    origin: process.env.CLIENT_URL || 'http://localhost:4200',
+    credentials: true
 }));
 
 app.use((req, res, next) => {
@@ -45,7 +46,7 @@ app.use('/api/v1/projects', projectRouter);
 app.use('/api/v1/tasks', taskRouter);
 app.use('/api/v1/issues', issueRouter);
 app.use('/api/v1/notifications', notificationRouter);
-app.use('/api/v1/comment', commentRouter);
+app.use('/api/v1/comments', commentRouter);
 app.use('/api/v1/chat', chatRouter);
 app.use('/api/v1/dashboard', dashboardRouter);
 

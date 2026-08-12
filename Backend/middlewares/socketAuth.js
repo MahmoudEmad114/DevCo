@@ -5,10 +5,17 @@ module.exports = async (socket, next) => {
 
     try {
 
-        const token = socket.handshake.auth.token;
+        const token =
+            socket.handshake.auth?.token ||
+            socket.handshake.headers?.authorization?.replace(
+                'Bearer ',
+                ''
+            );
 
         if (!token) {
-            return next(new Error('Authentication required'));
+            return next(
+                new Error('Authentication required')
+            );
         }
 
         const decoded = jwt.verify(
@@ -19,11 +26,18 @@ module.exports = async (socket, next) => {
         const user = await User.findById(decoded.id);
 
         if (!user) {
-            return next(new Error('User no longer exists'));
+            return next(
+                new Error('User no longer exists')
+            );
         }
 
-        if (user.changedPasswordAfter(decoded.iat)) {
-            return next(new Error('User recently changed password'));
+        if (
+            user.changedPasswordAfter &&
+            user.changedPasswordAfter(decoded.iat)
+        ) {
+            return next(
+                new Error('User recently changed password')
+            );
         }
 
         socket.user = user;
@@ -32,7 +46,11 @@ module.exports = async (socket, next) => {
 
     } catch (err) {
 
-        next(new Error('Invalid or expired token'));
+        console.error('Socket authentication error:', err);
+
+        next(
+            new Error('Invalid or expired token')
+        );
 
     }
 

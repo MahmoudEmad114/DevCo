@@ -15,8 +15,13 @@ const notificationSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['task-assigned', 'issue-assigned', 'comment-added', 'mention', 'status-changed', 'workspace-invitation'],
-        required: [true, 'Notification must have a type']
+        enum: [
+            'workspace-added',
+            'project-added',
+            'task-assigned',
+            'issue-assigned'
+        ],
+        required: true
     },
     message: {
         type: String,
@@ -31,7 +36,7 @@ const notificationSchema = new mongoose.Schema({
     },
     relatedItemType: {
         type: String,
-        enum: ['Task', 'Issue', 'Comment', 'Project']
+        enum: ['Workspace', 'Project', 'Task', 'Issue', 'Comment']
     },
     isRead: {
         type: Boolean,
