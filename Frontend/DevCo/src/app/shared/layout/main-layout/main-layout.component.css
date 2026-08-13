@@ -1,14 +1,189 @@
+/* =========================
+   DEV COLLAB APP LAYOUT
+   ========================= */
+
 .app-layout {
+    width: 100%;
     min-height: 100vh;
+
     display: flex;
-    background: #f8fafc;
+
+    background:
+        #0b1326;
+
+    color: #dae2fd;
+
+    overflow: hidden;
 }
+
+
+/* =========================
+   MAIN AREA
+   ========================= */
 
 .main-area {
     flex: 1;
+
     min-width: 0;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        #0b1326;
+
+    position: relative;
+
+    overflow: hidden;
 }
 
+
+/* =========================
+   PAGE CONTENT
+   ========================= */
+
 .page-content {
+    flex: 1;
+
     min-height: calc(100vh - 70px);
+
+    box-sizing: border-box;
+
+    padding: 28px;
+
+    background:
+        radial-gradient(circle at 80% 10%,
+            rgba(160, 120, 255, 0.035) 0%,
+            transparent 30%),
+        #0b1326;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    animation: contentFadeIn 0.45s ease both;
+}
+
+
+/* =========================
+   SCROLLBAR
+   ========================= */
+
+.page-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.page-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+    background: rgba(73, 68, 84, 0.7);
+
+    border-radius: 999px;
+
+    transition: background 0.2s ease;
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(208, 188, 255, 0.45);
+}
+
+
+/* =========================
+   SUBTLE BACKGROUND GLOW
+   ========================= */
+
+.main-area::before {
+    content: "";
+
+    position: absolute;
+
+    width: 450px;
+    height: 450px;
+
+    right: -220px;
+    top: 100px;
+
+    background:
+        rgba(160, 120, 255, 0.035);
+
+    border-radius: 50%;
+
+    filter: blur(100px);
+
+    pointer-events: none;
+
+    z-index: 0;
+}
+
+
+/* Make content stay above glow */
+
+.page-content {
+    position: relative;
+
+    z-index: 1;
+}
+
+
+/* =========================
+   PAGE TRANSITION
+   ========================= */
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .page-content {
+        padding: 22px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .page-content {
+        min-height: calc(100vh - 64px);
+
+        padding: 18px 16px;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    .page-content {
+        padding: 16px 12px;
+    }
+}
+
+
+/* =========================
+   REDUCED MOTION
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .page-content {
+        animation: none;
+    }
 }

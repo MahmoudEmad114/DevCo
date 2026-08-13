@@ -1,56 +1,113 @@
+/* =========================================================
+   Projects Page
+========================================================= */
+
 .projects-page {
-    padding: 30px;
+    width: 100%;
     max-width: 1200px;
+
     margin: 0 auto;
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    color: #1f2937;
+
+    animation: pageFadeIn 0.35s ease;
 }
 
-/* =========================
+
+/* =========================================================
    Header
-========================= */
+========================================================= */
 
 .projects-header {
-    margin-bottom: 30px;
+    margin-bottom: 26px;
 }
 
 .projects-header h1 {
-    margin: 0 0 6px;
-    font-size: 28px;
+    margin: 0 0 7px;
+
     color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    line-height: 1.25;
+    letter-spacing: -0.02em;
 }
 
 .projects-header p {
     margin: 0;
+
     color: #6b7280;
+
     font-size: 14px;
+    line-height: 1.5;
 }
 
-/* =========================
+
+/* =========================================================
    Projects Grid
-========================= */
+========================================================= */
 
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
 }
 
-/* =========================
+
+/* =========================================================
    Project Card
-========================= */
+========================================================= */
 
 .project-card {
-    background: white;
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    background: #ffffff;
+
     border: 1px solid #e5e7eb;
     border-radius: 14px;
 
     padding: 20px;
 
+    box-sizing: border-box;
+
     cursor: pointer;
+
+    overflow: hidden;
 
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
         border-color 0.2s ease;
+}
+
+.project-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 3px;
+
+    background: #111827;
+
+    transform: scaleY(0);
+    transform-origin: center;
+
+    transition: transform 0.2s ease;
 }
 
 .project-card:hover {
@@ -59,45 +116,77 @@
     border-color: #d1d5db;
 
     box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.07);
+        0 12px 30px rgba(0, 0, 0, 0.06),
+        0 3px 8px rgba(0, 0, 0, 0.03);
 }
 
-/* =========================
+.project-card:hover::before {
+    transform: scaleY(1);
+}
+
+
+/* =========================================================
    Card Top
-========================= */
+========================================================= */
 
 .project-card-top {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
 
-    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
 
     margin-bottom: 18px;
 }
 
+
+/* =========================================================
+   Project Icon
+========================================================= */
+
 .project-icon {
-    width: 45px;
-    height: 45px;
+    width: 46px;
+    height: 46px;
 
-    border-radius: 10px;
-
-    background: #111827;
-    color: white;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    border-radius: 11px;
+
+    background: #111827;
+    color: #ffffff;
+
     font-size: 18px;
     font-weight: 700;
+
+    box-shadow: 0 4px 10px rgba(17, 24, 39, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        border-radius 0.2s ease;
 }
 
-/* =========================
+.project-card:hover .project-icon {
+    transform: scale(1.04);
+
+    border-radius: 13px;
+}
+
+
+/* =========================================================
    Status
-========================= */
+========================================================= */
 
 .project-status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
     padding: 6px 10px;
 
     border-radius: 999px;
@@ -105,8 +194,25 @@
     font-size: 11px;
     font-weight: 700;
 
+    line-height: 1;
+
     text-transform: capitalize;
+
+    white-space: nowrap;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
 }
+
+.project-card:hover .project-status {
+    transform: translateY(-1px);
+
+    filter: brightness(0.98);
+}
+
+
+/* Status Variants */
 
 .project-status.planning {
     background: #fef3c7;
@@ -133,9 +239,10 @@
     color: #4b5563;
 }
 
-/* =========================
+
+/* =========================================================
    Card Content
-========================= */
+========================================================= */
 
 .project-card h3 {
     margin: 0 0 8px;
@@ -143,29 +250,47 @@
     color: #111827;
 
     font-size: 17px;
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .project-card p {
     margin: 0;
+
+    min-height: 42px;
 
     color: #6b7280;
 
     font-size: 13px;
     line-height: 1.6;
 
-    min-height: 42px;
+    display: -webkit-box;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    overflow: hidden;
 }
 
-/* =========================
+
+/* =========================================================
    Footer
-========================= */
+========================================================= */
 
 .project-card-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
 
-    margin-top: 20px;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: auto;
     padding-top: 15px;
 
     border-top: 1px solid #f3f4f6;
@@ -174,19 +299,48 @@
 
     font-size: 12px;
     font-weight: 600;
+
+    transition: border-color 0.2s ease;
+}
+
+.project-card:hover .project-card-footer {
+    border-color: #e5e7eb;
+}
+
+.project-card-footer span:first-child {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .project-card-footer span:last-child {
+    flex-shrink: 0;
+
     color: #111827;
+
     font-size: 16px;
+
+    transition: transform 0.2s ease;
 }
 
-/* =========================
+.project-card:hover .project-card-footer span:last-child {
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
    States
-========================= */
+========================================================= */
 
 .state {
-    background: white;
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
 
     border: 1px solid #e5e7eb;
     border-radius: 14px;
@@ -196,18 +350,36 @@
     text-align: center;
 
     color: #6b7280;
+
+    animation: fadeIn 0.3s ease;
 }
 
 .state h3 {
     margin: 0 0 8px;
+
     color: #111827;
+
+    font-size: 17px;
+    font-weight: 700;
 }
 
 .state p {
     margin: 0;
+
+    font-size: 13px;
+    line-height: 1.5;
 }
 
+
+/* =========================================================
+   Error State
+========================================================= */
+
 .state.error {
+    background: #fffafa;
+
+    border-color: #fecaca;
+
     color: #dc2626;
 }
 
@@ -215,40 +387,217 @@
     color: #111827;
 }
 
+
+/* =========================================================
+   State Button
+========================================================= */
+
 .state button {
     margin-top: 15px;
 
-    padding: 9px 14px;
+    padding: 9px 15px;
 
     border: none;
     border-radius: 8px;
 
     background: #111827;
-    color: white;
+    color: #ffffff;
 
     cursor: pointer;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-/* =========================
-   Responsive
-========================= */
+.state button:hover {
+    background: #1f2937;
 
-@media (max-width: 900px) {
+    transform: translateY(-1px);
 
-    .projects-grid {
-        grid-template-columns: repeat(2, 1fr);
+    box-shadow:
+        0 6px 15px rgba(17, 24, 39, 0.12);
+}
+
+.state button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   Focus
+========================================================= */
+
+.project-card:focus-visible,
+.state button:focus-visible {
+    outline: 2px solid #111827;
+
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   Animations
+========================================================= */
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+
+        transform: translateY(6px);
     }
 
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
 }
 
-@media (max-width: 600px) {
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   Responsive
+========================================================= */
+
+@media (max-width: 1000px) {
 
     .projects-page {
-        padding: 20px;
+        max-width: 1000px;
+    }
+
+    .projects-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .projects-page {
+        padding: 24px 20px;
+    }
+
+    .projects-header {
+        margin-bottom: 22px;
+    }
+
+    .projects-header h1 {
+        font-size: 25px;
     }
 
     .projects-grid {
         grid-template-columns: 1fr;
+
+        gap: 14px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    .projects-page {
+        padding: 20px 15px;
     }
 
+    .projects-header h1 {
+        font-size: 23px;
+    }
+
+    .projects-header p {
+        font-size: 13px;
+    }
+
+    .project-card {
+        padding: 18px;
+
+        border-radius: 12px;
+    }
+
+    .project-card-top {
+        margin-bottom: 16px;
+    }
+
+    .project-icon {
+        width: 44px;
+        height: 44px;
+
+        font-size: 17px;
+    }
+
+    .project-card h3 {
+        font-size: 16px;
+    }
+
+    .project-card p {
+        font-size: 12px;
+    }
+
+    .project-card-footer {
+        margin-top: 18px;
+    }
+}
+
+
+/* =========================================================
+   Small Mobile
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .projects-page {
+        padding: 16px 12px;
+    }
+
+    .project-card {
+        padding: 16px;
+    }
+
+    .project-card-top {
+        align-items: flex-start;
+    }
+
+    .project-status {
+        font-size: 10px;
+
+        padding: 5px 8px;
+    }
+
+    .project-card-footer {
+        gap: 10px;
+    }
+}
+
+
+/* =========================================================
+   Reduced Motion
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .projects-page,
+    .project-card,
+    .project-icon,
+    .project-status,
+    .project-card-footer,
+    .state,
+    .state button {
+        animation: none;
+
+        transition: none;
+    }
 }

@@ -1,71 +1,368 @@
+/* =========================
+   DEV COLLAB SIDEBAR
+   ========================= */
+
 .sidebar {
     width: 240px;
     min-height: 100vh;
-    background: #ffffff;
-    border-right: 1px solid #e5e7eb;
+
+    box-sizing: border-box;
+
     display: flex;
     flex-direction: column;
+
     padding: 24px 14px;
+
+    position: relative;
+
+    background:
+        linear-gradient(180deg,
+            #111a2e 0%,
+            #0b1326 100%);
+
+    border-right: 1px solid rgba(73, 68, 84, 0.45);
+
+    color: #dae2fd;
+
+    box-shadow:
+        8px 0 30px rgba(0, 0, 0, 0.12);
+
+    z-index: 10;
+
+    transition:
+        width 0.3s ease,
+        box-shadow 0.3s ease;
 }
+
+
+/* =========================
+   LOGO
+   ========================= */
 
 .logo {
     display: flex;
     align-items: center;
+
     gap: 10px;
+
     padding: 0 10px;
+
     margin-bottom: 35px;
+
+    color: #dae2fd;
+
     font-size: 18px;
+
     font-weight: 700;
+
+    letter-spacing: -0.02em;
 }
+
+
+/* Logo icon */
 
 .logo-mark {
     width: 34px;
     height: 34px;
-    border-radius: 9px;
-    background: #111827;
-    color: #ffffff;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    background:
+        linear-gradient(135deg,
+            #d0bcff,
+            #a078ff);
+
+    color: #340080;
+
+    box-shadow:
+        0 6px 20px rgba(208, 188, 255, 0.18);
+
+    font-weight: 700;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
+
+
+.logo:hover .logo-mark {
+    transform:
+        rotate(-4deg) scale(1.05);
+
+    box-shadow:
+        0 8px 25px rgba(208, 188, 255, 0.30);
+}
+
+
+/* =========================
+   NAVIGATION
+   ========================= */
 
 .nav {
     display: flex;
+
     flex-direction: column;
+
     gap: 5px;
 }
+
+
+/* =========================
+   NAV LINKS
+   ========================= */
 
 .nav a,
 .sidebar-bottom a {
     display: flex;
+
     align-items: center;
+
     gap: 12px;
+
     padding: 11px 12px;
-    border-radius: 9px;
-    color: #6b7280;
+
+    border-radius: 10px;
+
+    color: #a9a2b5;
+
     text-decoration: none;
+
     font-size: 14px;
-    transition: 0.2s;
+
+    font-weight: 500;
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.2s ease,
+        box-shadow 0.25s ease;
 }
+
+
+/* =========================
+   HOVER
+   ========================= */
 
 .nav a:hover,
 .sidebar-bottom a:hover {
-    background: #f3f4f6;
-    color: #111827;
+    background:
+        rgba(208, 188, 255, 0.08);
+
+    color: #e9ddff;
+
+    transform: translateX(3px);
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.12);
 }
+
+
+/* =========================
+   ACTIVE
+   ========================= */
 
 .nav a.active,
 .sidebar-bottom a.active {
-    background: #111827;
-    color: #ffffff;
+    background:
+        linear-gradient(135deg,
+            rgba(208, 188, 255, 0.18),
+            rgba(160, 120, 255, 0.10));
+
+    color: #e9ddff;
+
+    border: 1px solid rgba(208, 188, 255, 0.12);
+
+    box-shadow:
+        0 6px 20px rgba(208, 188, 255, 0.06);
 }
+
+
+/* Active indicator */
+
+.nav a.active::before,
+.sidebar-bottom a.active::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 50%;
+
+    width: 3px;
+    height: 22px;
+
+    border-radius: 0 4px 4px 0;
+
+    background: #d0bcff;
+
+    transform: translateY(-50%);
+
+    box-shadow:
+        0 0 10px rgba(208, 188, 255, 0.45);
+}
+
+
+/* =========================
+   ICON / SPAN
+   ========================= */
 
 .nav a span,
 .sidebar-bottom a span {
     width: 18px;
+
+    min-width: 18px;
+
     text-align: center;
+
+    font-size: 16px;
+
+    color: #938ca0;
+
+    transition:
+        color 0.25s ease,
+        transform 0.25s ease;
 }
+
+
+/* Icon hover */
+
+.nav a:hover span,
+.sidebar-bottom a:hover span {
+    color: #d0bcff;
+
+    transform: scale(1.08);
+}
+
+
+/* Active icon */
+
+.nav a.active span,
+.sidebar-bottom a.active span {
+    color: #d0bcff;
+}
+
+
+/* =========================
+   BOTTOM SECTION
+   ========================= */
 
 .sidebar-bottom {
     margin-top: auto;
+
+    padding-top: 20px;
+
+    border-top: 1px solid rgba(73, 68, 84, 0.35);
+}
+
+
+/* =========================
+   SUBTLE GLOW
+   ========================= */
+
+.sidebar::before {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    top: 80px;
+    left: -90px;
+
+    background: rgba(160, 120, 255, 0.07);
+
+    border-radius: 50%;
+
+    filter: blur(70px);
+
+    pointer-events: none;
+
+    z-index: -1;
+}
+
+
+/* =========================
+   LINK PRESS
+   ========================= */
+
+.nav a:active,
+.sidebar-bottom a:active {
+    transform: translateX(2px) scale(0.98);
+}
+
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 210px;
+
+        padding: 20px 10px;
+    }
+
+    .logo {
+        margin-bottom: 28px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        width: 72px;
+
+        padding: 20px 10px;
+    }
+
+    .logo {
+        justify-content: center;
+
+        padding: 0;
+
+        margin-bottom: 28px;
+    }
+
+    .logo:not(.logo-mark) {
+        font-size: 0;
+    }
+
+    .logo-mark {
+        width: 38px;
+        height: 38px;
+    }
+
+    .nav a,
+    .sidebar-bottom a {
+        justify-content: center;
+
+        padding: 12px;
+
+        gap: 0;
+    }
+
+    .nav a span,
+    .sidebar-bottom a span {
+        width: auto;
+
+        font-size: 18px;
+    }
+
+    .nav a:not(:has(span)),
+    .sidebar-bottom a:not(:has(span)) {
+        font-size: 0;
+    }
 }

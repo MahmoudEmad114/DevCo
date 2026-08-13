@@ -1,79 +1,186 @@
+/* =========================================================
+   Dashboard Page
+========================================================= */
+
 .dashboard-page {
-    padding: 32px;
+    width: 100%;
     max-width: 1400px;
+
     margin: 0 auto;
+
+    padding: 32px;
+
+    box-sizing: border-box;
+
     color: #1f2937;
+
+    animation: pageFadeIn 0.35s ease;
 }
 
-/* Header */
+
+/* =========================================================
+   Header
+========================================================= */
 
 .dashboard-header {
     margin-bottom: 32px;
 }
 
 .eyebrow {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    display: inline-block;
+
     color: #6b7280;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
 }
 
 .dashboard-header h1 {
     margin: 8px 0 6px;
+
+    color: #9da9c4;
+
     font-size: 32px;
     font-weight: 700;
+
+    line-height: 1.2;
+
+    letter-spacing: -0.025em;
 }
 
 .dashboard-header p {
     margin: 0;
+
     color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.5;
 }
 
 
-/* Overview */
+/* =========================================================
+   Overview
+========================================================= */
 
 .overview-grid {
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
+
     gap: 18px;
+
     margin-bottom: 32px;
 }
 
+
+/* =========================================================
+   Stat Card
+========================================================= */
+
 .stat-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 22px;
     display: flex;
     align-items: center;
+
     gap: 16px;
+
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    cursor: default;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
+.stat-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #d1d5db;
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.06),
+        0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+
+/* =========================================================
+   Stat Icon
+========================================================= */
 
 .stat-icon {
     width: 44px;
     height: 44px;
+
+    flex-shrink: 0;
+
     border-radius: 10px;
+
     background: #f3f4f6;
+
+    color: #111827;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
+
+.stat-card:hover .stat-icon {
+    background: #111827;
+
+    color: #ffffff;
+
+    transform: scale(1.05);
+}
+
+
+/* =========================================================
+   Stat Text
+========================================================= */
 
 .stat-card span,
 .mini-card span {
     display: block;
+
     color: #6b7280;
+
     font-size: 13px;
+
     margin-bottom: 5px;
 }
 
 .stat-card strong {
+    display: block;
+
+    color: #111827;
+
     font-size: 26px;
+    font-weight: 700;
+
+    line-height: 1.2;
 }
 
 
-/* Sections */
+/* =========================================================
+   Sections
+========================================================= */
 
 .section-header {
     margin-bottom: 14px;
@@ -81,93 +188,202 @@
 
 .section-header h2 {
     margin: 0 0 5px;
+
+    color: #111827;
+
     font-size: 21px;
+    font-weight: 700;
 }
 
 .section-header p {
     margin: 0;
+
     color: #6b7280;
+
+    font-size: 13px;
+
+    line-height: 1.5;
 }
 
 
-/* My Work */
+/* =========================================================
+   My Work
+========================================================= */
 
 .small-grid {
+    display: grid;
+
     grid-template-columns: repeat(2, 1fr);
+
+    gap: 18px;
 }
 
 .mini-card {
     background: #ffffff;
+
     border: 1px solid #e5e7eb;
+
     border-radius: 14px;
+
     padding: 20px;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.mini-card:hover {
+    transform: translateY(-3px);
+
+    border-color: #d1d5db;
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.06);
 }
 
 .mini-card strong {
+    display: block;
+
+    color: #111827;
+
     font-size: 28px;
+    font-weight: 700;
+
+    line-height: 1.2;
 }
 
 
-/* Status */
+/* =========================================================
+   Status
+========================================================= */
 
 .status-grid {
     display: grid;
+
     grid-template-columns: repeat(2, 1fr);
+
     gap: 18px;
+
     margin-bottom: 20px;
 }
 
+
+/* =========================================================
+   Panels
+========================================================= */
+
 .panel {
     background: #ffffff;
+
     border: 1px solid #e5e7eb;
+
     border-radius: 14px;
+
     padding: 22px;
+
     margin-bottom: 20px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.panel:hover {
+    border-color: #d1d5db;
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 .panel-header {
     display: flex;
+
     justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 15px;
+
     margin-bottom: 20px;
 }
 
 .panel-header h3 {
     margin: 0 0 5px;
+
+    color: #111827;
+
     font-size: 17px;
+    font-weight: 700;
 }
 
 .panel-header span {
     color: #6b7280;
+
     font-size: 13px;
 }
 
 
-/* Status rows */
+/* =========================================================
+   Status Rows
+========================================================= */
 
 .status-list {
     display: flex;
+
     flex-direction: column;
-    gap: 14px;
+
+    gap: 4px;
 }
 
 .status-row {
     display: flex;
+
     justify-content: space-between;
     align-items: center;
+
+    padding: 9px 8px;
+
+    border-radius: 8px;
+
+    color: #374151;
+
     font-size: 14px;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.status-row:hover {
+    background: #f9fafb;
+
+    transform: translateX(2px);
 }
 
 .status-row>div {
     display: flex;
+
     align-items: center;
+
     gap: 9px;
 }
+
+
+/* =========================================================
+   Status Dots
+========================================================= */
 
 .status-dot {
     width: 9px;
     height: 9px;
+
+    flex-shrink: 0;
+
     border-radius: 50%;
+
     background: #9ca3af;
+
+    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.08);
 }
 
 .status-dot.todo {
@@ -203,7 +419,9 @@
 }
 
 
-/* Recent */
+/* =========================================================
+   Recent Activity
+========================================================= */
 
 .recent-panel {
     margin-bottom: 20px;
@@ -211,59 +429,232 @@
 
 .recent-item {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
-    padding: 14px 0;
-    border-top: 1px solid #f0f0f0;
+
+    gap: 20px;
+
+    padding: 14px 8px;
+
+    border-top: 1px solid #f3f4f6;
+
+    border-radius: 7px;
+
+    transition:
+        background 0.2s ease,
+        padding-left 0.2s ease,
+        padding-right 0.2s ease;
+}
+
+.recent-item:hover {
+    background: #f9fafb;
+
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 .item-main {
     display: flex;
+
     flex-direction: column;
+
     gap: 4px;
+
+    min-width: 0;
 }
 
 .item-main strong {
+    color: #111827;
+
     font-size: 14px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
 .item-main span {
-    font-size: 12px;
     color: #6b7280;
+
+    font-size: 12px;
 }
 
 
-/* Badge */
+/* =========================================================
+   Badge
+========================================================= */
 
 .badge {
+    flex-shrink: 0;
+
     padding: 5px 10px;
+
     border-radius: 999px;
+
+    background: #f3f4f6;
+
+    color: #4b5563;
+
     font-size: 11px;
     font-weight: 600;
+
     text-transform: capitalize;
-    background: #f3f4f6;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.recent-item:hover .badge {
+    background: #e5e7eb;
+
+    transform: scale(1.03);
 }
 
 
-/* Loading */
+/* =========================================================
+   Loading
+========================================================= */
 
 .loading-state {
     min-height: 400px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
+
     color: #6b7280;
+
+    animation: fadeIn 0.3s ease;
 }
 
 .spinner {
     width: 28px;
     height: 28px;
+
     border: 3px solid #e5e7eb;
-    border-top-color: #374151;
+
+    border-top-color: #111827;
+
     border-radius: 50%;
+
     animation: spin 0.8s linear infinite;
+
     margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   Error
+========================================================= */
+
+.error-state {
+    padding: 40px;
+
+    text-align: center;
+
+    animation: fadeIn 0.3s ease;
+}
+
+.error-state h3 {
+    margin: 0 0 8px;
+
+    color: #111827;
+}
+
+.error-state p {
+    color: #6b7280;
+
+    margin: 0 0 20px;
+}
+
+.error-state button {
+    border: none;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.error-state button:hover {
+    background: #1f2937;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 15px rgba(17, 24, 39, 0.12);
+}
+
+.error-state button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   Empty
+========================================================= */
+
+.empty-state {
+    padding: 25px 0;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+
+    animation: fadeIn 0.3s ease;
+}
+
+
+/* =========================================================
+   Animations
+========================================================= */
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes spin {
@@ -273,43 +664,9 @@
 }
 
 
-/* Error */
-
-.error-state {
-    padding: 40px;
-    text-align: center;
-}
-
-.error-state h3 {
-    margin-bottom: 8px;
-}
-
-.error-state p {
-    color: #6b7280;
-    margin-bottom: 20px;
-}
-
-.error-state button {
-    border: 0;
-    background: #111827;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-
-/* Empty */
-
-.empty-state {
-    padding: 25px 0;
-    text-align: center;
-    color: #9ca3af;
-    font-size: 14px;
-}
-
-
-/* Responsive */
+/* =========================================================
+   Responsive
+========================================================= */
 
 @media (max-width: 1000px) {
 
@@ -320,14 +677,25 @@
     .status-grid {
         grid-template-columns: 1fr;
     }
+}
 
+
+@media (max-width: 700px) {
+
+    .dashboard-page {
+        padding: 24px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 28px;
+    }
 }
 
 
 @media (max-width: 600px) {
 
     .dashboard-page {
-        padding: 20px;
+        padding: 18px;
     }
 
     .overview-grid,
@@ -336,7 +704,35 @@
     }
 
     .dashboard-header h1 {
-        font-size: 26px;
+        font-size: 25px;
     }
 
+    .panel,
+    .stat-card,
+    .mini-card {
+        border-radius: 12px;
+    }
+
+    .recent-item {
+        align-items: flex-start;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+    .dashboard-page,
+    .loading-state,
+    .error-state,
+    .empty-state,
+    .stat-card,
+    .mini-card,
+    .panel,
+    .status-row,
+    .recent-item,
+    .error-state button,
+    .stat-icon {
+        animation: none;
+        transition: none;
+    }
 }

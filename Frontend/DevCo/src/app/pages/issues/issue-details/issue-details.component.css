@@ -1,46 +1,80 @@
+/* =========================================================
+   ISSUE DETAILS PAGE
+========================================================= */
+
 .issue-details-page {
-    padding: 30px;
-    max-width: 1100px;
+    width: 100%;
+    max-width: 1200px;
+
     margin: 0 auto;
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    color: #dae2fd;
+
+    animation: issueFadeIn 0.45s ease both;
 }
 
 
-/* =========================
-   Back
-========================= */
+/* =========================================================
+   BACK LINK
+========================================================= */
 
 .back-link {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
     border: none;
+
     background: transparent;
 
-    color: #6b7280;
+    color: #938ca0;
 
     cursor: pointer;
 
     padding: 0;
 
-    margin-bottom: 25px;
+    margin-bottom: 24px;
+
+    font-family: inherit;
 
     font-size: 14px;
+    font-weight: 500;
 
-    transition: color 0.2s ease;
+    transition:
+        color 0.25s ease,
+        transform 0.2s ease;
 }
 
 .back-link:hover {
-    color: #111827;
+    color: #d0bcff;
+
+    transform: translateX(-3px);
 }
 
 
-/* =========================
-   Issue Header
-========================= */
+/* =========================================================
+   ISSUE HEADER
+========================================================= */
 
 .issue-header {
-    background: #111827;
+    position: relative;
 
-    color: white;
+    overflow: hidden;
 
-    border-radius: 16px;
+    background:
+        linear-gradient(135deg,
+            #111a2e 0%,
+            #151d34 55%,
+            #1b1735 100%);
+
+    border: 1px solid rgba(208, 188, 255, 0.10);
+
+    border-radius: 18px;
 
     padding: 30px;
 
@@ -48,14 +82,84 @@
 
     display: flex;
 
+    align-items: center;
+
     justify-content: space-between;
 
-    align-items: flex-start;
-
     gap: 20px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.16);
+
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
+
+/* Purple Glow */
+
+.issue-header::before {
+    content: "";
+
+    position: absolute;
+
+    width: 260px;
+    height: 260px;
+
+    right: -100px;
+    top: -130px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(160, 120, 255, 0.10);
+
+    filter: blur(65px);
+
+    pointer-events: none;
+}
+
+
+/* Bottom Accent */
+
+.issue-header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 1px;
+
+    left: 30px;
+    bottom: 0;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(208, 188, 255, 0.40),
+            transparent);
+}
+
+
+.issue-header:hover {
+    border-color:
+        rgba(208, 188, 255, 0.20);
+
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+
+/* =========================================================
+   ISSUE HEADER MAIN
+========================================================= */
+
 .issue-header-main {
+    position: relative;
+
+    z-index: 1;
+
     display: flex;
 
     align-items: center;
@@ -65,35 +169,68 @@
     min-width: 0;
 }
 
+
+/* =========================================================
+   ISSUE ICON
+========================================================= */
+
 .issue-icon {
     width: 58px;
     height: 58px;
 
-    border-radius: 13px;
+    flex-shrink: 0;
 
-    background: white;
+    border-radius: 15px;
 
-    color: #111827;
+    background:
+        linear-gradient(135deg,
+            #d0bcff,
+            #a078ff);
+
+    color: #340080;
 
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
-    font-size: 24px;
+    font-size: 23px;
 
     font-weight: 800;
 
-    flex-shrink: 0;
+    box-shadow:
+        0 8px 25px rgba(208, 188, 255, 0.15);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
+
+.issue-header:hover .issue-icon {
+    transform:
+        rotate(-3deg) scale(1.04);
+
+    box-shadow:
+        0 10px 30px rgba(208, 188, 255, 0.25);
+}
+
+
+/* =========================================================
+   ISSUE TITLE
+========================================================= */
 
 .issue-header h1 {
     margin: 0 0 7px;
 
+    color: #eef2ff;
+
     font-size: 28px;
 
+    font-weight: 700;
+
     line-height: 1.2;
+
+    letter-spacing: -0.02em;
 
     word-break: break-word;
 }
@@ -101,74 +238,127 @@
 .issue-header p {
     margin: 0;
 
-    color: #d1d5db;
+    color: #aaa4b5;
 
-    font-size: 13px;
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    word-break: break-word;
 }
 
 
-/* =========================
-   Status
-========================= */
+/* =========================================================
+   ISSUE STATUS
+========================================================= */
 
 .issue-status {
-    padding: 7px 12px;
+    position: relative;
+
+    z-index: 1;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 11px;
 
     border-radius: 999px;
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 700;
+
+    text-transform: capitalize;
 
     white-space: nowrap;
 
     flex-shrink: 0;
+
+    border: 1px solid transparent;
 }
 
 .issue-status.open {
-    background: #fee2e2;
-    color: #b91c1c;
+    background:
+        rgba(96, 165, 250, 0.10);
+
+    color: #93c5fd;
 }
 
 .issue-status.in-progress {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background:
+        rgba(251, 191, 36, 0.10);
+
+    color: #fcd34d;
 }
 
 .issue-status.resolved {
-    background: #dcfce7;
-    color: #166534;
+    background:
+        rgba(74, 222, 128, 0.10);
+
+    color: #86efac;
 }
 
 .issue-status.closed {
-    background: #f3f4f6;
-    color: #4b5563;
+    background:
+        rgba(148, 163, 184, 0.10);
+
+    color: #aaa4b5;
 }
 
 
-/* =========================
-   Cards
-========================= */
+/* =========================================================
+   COMMON CARDS
+========================================================= */
 
 .issue-overview,
 .info-card,
 .person-card,
 .actions-card {
-    background: white;
+    position: relative;
 
-    border: 1px solid #e5e7eb;
+    background:
+        rgba(17, 26, 46, 0.78);
 
-    border-radius: 14px;
+    border:
+        1px solid rgba(73, 68, 84, 0.48);
+
+    border-radius: 15px;
 
     padding: 24px;
 
     margin-bottom: 20px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.10);
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.issue-overview:hover,
+.info-card:hover,
+.person-card:hover,
+.actions-card:hover {
+    border-color:
+        rgba(208, 188, 255, 0.14);
+
+    box-shadow:
+        0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
 
-/* =========================
-   Section Title
-========================= */
+/* =========================================================
+   SECTION TITLE
+========================================================= */
 
 .section-title {
     margin-bottom: 20px;
@@ -177,23 +367,29 @@
 .section-title h2 {
     margin: 0 0 5px;
 
-    color: #111827;
+    color: #e9ddff;
 
     font-size: 18px;
+
+    font-weight: 650;
+
+    line-height: 1.3;
 }
 
 .section-title p {
     margin: 0;
 
-    color: #6b7280;
+    color: #938ca0;
 
     font-size: 13px;
+
+    line-height: 1.5;
 }
 
 
-/* =========================
-   Description
-========================= */
+/* =========================================================
+   DESCRIPTION
+========================================================= */
 
 .description-block {
     display: flex;
@@ -204,15 +400,21 @@
 }
 
 .label {
-    color: #9ca3af;
+    color: #797286;
 
-    font-size: 12px;
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
 }
 
 .description-block p {
     margin: 0;
 
-    color: #374151;
+    color: #c5bed0;
 
     font-size: 14px;
 
@@ -222,122 +424,192 @@
 }
 
 .empty-text {
-    color: #9ca3af !important;
+    color: #797286 !important;
 }
 
 
-/* =========================
-   Information
-========================= */
+/* =========================================================
+   INFORMATION
+========================================================= */
 
 .info-card h2 {
     margin: 0 0 22px;
 
-    color: #111827;
+    color: #e9ddff;
 
     font-size: 18px;
+
+    font-weight: 650;
 }
 
 .info-grid {
     display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-    gap: 22px;
+    gap: 16px;
 }
 
 .info-item {
+    min-width: 0;
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    background:
+        rgba(208, 188, 255, 0.035);
+
+    border:
+        1px solid rgba(208, 188, 255, 0.05);
+
     display: flex;
 
     flex-direction: column;
 
     gap: 7px;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.2s ease;
+}
+
+.info-item:hover {
+    background:
+        rgba(208, 188, 255, 0.06);
+
+    border-color:
+        rgba(208, 188, 255, 0.12);
+
+    transform:
+        translateY(-2px);
 }
 
 .info-item strong {
-    color: #111827;
+    color: #dae2fd;
 
     font-size: 14px;
+
+    font-weight: 600;
+
+    word-break: break-word;
 }
 
 
-/* =========================
-   Priority
-========================= */
+/* =========================================================
+   PRIORITY
+========================================================= */
 
 .priority {
     display: inline-flex;
 
+    align-items: center;
+
     width: fit-content;
 
     padding: 5px 10px;
 
     border-radius: 999px;
 
-    font-size: 11px;
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: capitalize;
+
+    border: 1px solid transparent;
 }
 
 .priority.low {
-    background: #f3f4f6;
-    color: #4b5563;
+    background:
+        rgba(148, 163, 184, 0.10);
+
+    color: #aaa4b5;
 }
 
 .priority.medium {
-    background: #dbeafe;
-    color: #1d4ed8;
+    background:
+        rgba(96, 165, 250, 0.10);
+
+    color: #93c5fd;
 }
 
 .priority.high {
-    background: #fef3c7;
-    color: #92400e;
+    background:
+        rgba(251, 191, 36, 0.10);
+
+    color: #fcd34d;
 }
 
 .priority.urgent {
-    background: #fee2e2;
-    color: #b91c1c;
+    background:
+        rgba(248, 113, 113, 0.10);
+
+    color: #f87171;
 }
 
 
-/* =========================
-   Severity
-========================= */
+/* =========================================================
+   SEVERITY
+========================================================= */
 
 .severity {
     display: inline-flex;
 
+    align-items: center;
+
     width: fit-content;
 
     padding: 5px 10px;
 
     border-radius: 999px;
 
-    font-size: 11px;
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: capitalize;
+
+    border: 1px solid transparent;
 }
 
 .severity.minor {
-    background: #f3f4f6;
-    color: #4b5563;
+    background:
+        rgba(148, 163, 184, 0.10);
+
+    color: #aaa4b5;
 }
 
 .severity.major {
-    background: #fef3c7;
-    color: #92400e;
+    background:
+        rgba(251, 191, 36, 0.10);
+
+    color: #fcd34d;
 }
 
 .severity.critical {
-    background: #fee2e2;
-    color: #b91c1c;
+    background:
+        rgba(248, 113, 113, 0.10);
+
+    color: #f87171;
 }
 
 .severity.blocker {
-    background: #7f1d1d;
-    color: white;
+    background:
+        rgba(248, 113, 113, 0.16);
+
+    color: #fca5a5;
+
+    border-color:
+        rgba(248, 113, 113, 0.12);
 }
 
 
-/* =========================
-   Person
-========================= */
+/* =========================================================
+   PERSON
+========================================================= */
 
 .person {
     display: flex;
@@ -351,19 +623,22 @@
 
 .avatar {
     width: 46px;
-
     height: 46px;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
-    background: #111827;
+    background:
+        linear-gradient(135deg,
+            #d0bcff,
+            #a078ff);
 
-    color: white;
+    color: #340080;
 
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     overflow: hidden;
@@ -372,21 +647,36 @@
 
     font-weight: 700;
 
-    flex-shrink: 0;
+    box-shadow:
+        0 4px 15px rgba(160, 120, 255, 0.08);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.person:hover .avatar {
+    transform: scale(1.06);
+
+    box-shadow:
+        0 6px 20px rgba(160, 120, 255, 0.18);
 }
 
 .avatar img {
     width: 100%;
-
     height: 100%;
 
     object-fit: cover;
 }
 
 .avatar.unassigned {
-    background: #f3f4f6;
+    background:
+        rgba(208, 188, 255, 0.06);
 
-    color: #6b7280;
+    color: #938ca0;
+
+    border:
+        1px solid rgba(208, 188, 255, 0.08);
 }
 
 .person-info {
@@ -395,24 +685,40 @@
     flex-direction: column;
 
     gap: 4px;
+
+    min-width: 0;
 }
 
 .person-info strong {
-    color: #111827;
+    color: #dae2fd;
 
     font-size: 14px;
+
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
 .person-info span {
-    color: #6b7280;
+    color: #938ca0;
 
     font-size: 12px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
 }
 
 
-/* =========================
-   Actions
-========================= */
+/* =========================================================
+   ACTIONS
+========================================================= */
 
 .actions-card {
     display: flex;
@@ -420,83 +726,159 @@
     align-items: center;
 
     justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 0;
 }
 
 .actions-card h3 {
     margin: 0 0 5px;
 
-    color: #111827;
+    color: #dae2fd;
 
     font-size: 15px;
+
+    font-weight: 700;
 }
 
 .actions-card p {
     margin: 0;
 
-    color: #6b7280;
+    color: #938ca0;
 
     font-size: 12px;
+
+    line-height: 1.5;
 }
 
 
-/* =========================
-   States
-========================= */
+/* =========================================================
+   STATES
+========================================================= */
 
 .state {
-    background: white;
+    background:
+        rgba(17, 26, 46, 0.78);
 
-    border: 1px solid #e5e7eb;
+    border:
+        1px solid rgba(73, 68, 84, 0.45);
 
     border-radius: 14px;
 
-    padding: 50px;
+    padding: 50px 25px;
 
     text-align: center;
+
+    color: #938ca0;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.10);
+
+    animation:
+        issueFadeIn 0.3s ease;
+}
+
+.state h3 {
+    margin: 0 0 7px;
+
+    color: #dae2fd;
+
+    font-size: 16px;
+}
+
+.state p {
+    margin: 0;
+
+    color: #938ca0;
+
+    font-size: 13px;
+
+    line-height: 1.5;
 }
 
 .state.error {
-    color: #dc2626;
+    color: #f87171;
+
+    border-color:
+        rgba(248, 113, 113, 0.15);
+
+    background:
+        rgba(248, 113, 113, 0.035);
 }
 
 .state.error h3 {
-    margin: 0 0 8px;
-
-    color: #111827;
+    color: #dae2fd;
 }
 
-.state.error p {
-    margin: 0;
-}
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
 
 .back-btn {
     margin-top: 15px;
 
-    padding: 10px 16px;
+    padding: 9px 14px;
 
-    border: none;
+    border:
+        1px solid rgba(208, 188, 255, 0.12);
 
     border-radius: 8px;
 
-    background: #111827;
+    background:
+        linear-gradient(135deg,
+            #d0bcff,
+            #a078ff);
 
-    color: white;
+    color: #340080;
 
     cursor: pointer;
 
-    font-size: 13px;
+    font-family: inherit;
 
-    font-weight: 600;
+    font-size: 12px;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
 }
 
 .back-btn:hover {
-    background: #1f2937;
+    filter: brightness(1.06);
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(160, 120, 255, 0.16);
+}
+
+.back-btn:active {
+    transform:
+        translateY(0) scale(0.97);
 }
 
 
-/* =========================
-   Responsive
-========================= */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .issue-details-page {
+        padding: 25px;
+    }
+
+    .info-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
 
 @media (max-width: 700px) {
 
@@ -505,7 +887,11 @@
     }
 
     .issue-header {
+        align-items: flex-start;
+
         flex-direction: column;
+
+        padding: 24px;
     }
 
     .issue-status {
@@ -514,6 +900,12 @@
 
     .info-grid {
         grid-template-columns: 1fr;
+    }
+
+    .actions-card {
+        align-items: flex-start;
+
+        flex-direction: column;
     }
 }
 
@@ -525,7 +917,9 @@
     }
 
     .issue-header {
-        padding: 22px;
+        padding: 20px;
+
+        border-radius: 14px;
     }
 
     .issue-header-main {
@@ -535,9 +929,8 @@
     }
 
     .issue-icon {
-        width: 48px;
-
-        height: 48px;
+        width: 50px;
+        height: 50px;
 
         font-size: 20px;
     }
@@ -546,10 +939,82 @@
         font-size: 22px;
     }
 
+    .issue-header p {
+        font-size: 12px;
+    }
+
     .issue-overview,
     .info-card,
     .person-card,
     .actions-card {
         padding: 18px;
+
+        border-radius: 12px;
+    }
+
+    .section-title h2,
+    .info-card h2 {
+        font-size: 16px;
+    }
+
+    .description-block p {
+        font-size: 13px;
+    }
+
+    .info-item {
+        padding: 12px;
+    }
+
+    .person-info strong {
+        font-size: 13px;
+    }
+
+    .state {
+        padding: 40px 18px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .issue-details-page,
+    .issue-header,
+    .issue-icon,
+    .back-link,
+    .back-btn,
+    .state {
+        animation: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes issueFadeIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
     }
 }
