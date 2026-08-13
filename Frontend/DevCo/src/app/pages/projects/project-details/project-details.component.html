@@ -304,11 +304,7 @@
             (click)="selectUser(user)"
           >
             <div class="search-avatar">
-              <img *ngIf="user.photo" [src]="user.photo" [alt]="user.name" />
-
-              <span *ngIf="!user.photo">
-                {{ user.name.charAt(0).toUpperCase() }}
-              </span>
+              <img [src]="user.photo || 'assets/images/default-avatar.jpg'" />
             </div>
 
             <div class="search-user-info">
