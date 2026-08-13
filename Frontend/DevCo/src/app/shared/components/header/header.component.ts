@@ -3,34 +3,38 @@ import {
   OnInit
 } from '@angular/core';
 
-import { AuthService }
-  from '../../../core/services/auth.service';
+import {
+  AuthService
+} from '../../../core/services/auth.service';
 
-import { NotificationService }
-  from '../../../core/services/notification.service';
+import {
+  NotificationService
+} from '../../../core/services/notification.service';
 
-import { User }
-  from '../../../core/models/user.model';
+import {
+  User
+} from '../../../core/models/user.model';
 
-  import { environment }
-from '../../../../environments/environment';
+import {
+  environment
+} from '../../../../environments/environment';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent
-  implements OnInit {
+export class HeaderComponent implements OnInit {
 
   user: User | null = null;
 
   unreadCount = 0;
 
+  isDarkMode = false;
+
   constructor(
     private authService: AuthService,
-    private notificationService:
-      NotificationService
+    private notificationService: NotificationService
   ) {
 
     this.user =
@@ -48,6 +52,14 @@ export class HeaderComponent
 
       });
 
+    const savedTheme =
+      localStorage.getItem('theme');
+
+    this.isDarkMode =
+      savedTheme === 'dark';
+
+    this.applyTheme();
+
   }
 
   getUserPhoto(photo?: string): string {
@@ -58,23 +70,52 @@ export class HeaderComponent
 
   }
 
+  toggleTheme(): void {
+
+    this.isDarkMode =
+      !this.isDarkMode;
+
+    localStorage.setItem(
+      'theme',
+      this.isDarkMode
+        ? 'dark'
+        : 'light'
+    );
+
+    this.applyTheme();
+
+  }
+
+  private applyTheme(): void {
+
+    document.body.classList.toggle(
+      'dark-mode',
+      this.isDarkMode
+    );
+
+  }
+
   logout(): void {
 
-    this.authService.logout().subscribe({
+    this.authService
+      .logout()
+      .subscribe({
 
-      next: () => {
+        next: () => {
 
-        window.location.href = '/login';
+          window.location.href =
+            '/login';
 
-      },
+        },
 
-      error: () => {
+        error: () => {
 
-        window.location.href = '/login';
+          window.location.href =
+            '/login';
 
-      }
+        }
 
-    });
+      });
 
   }
 

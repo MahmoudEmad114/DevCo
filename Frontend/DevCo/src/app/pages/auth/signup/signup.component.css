@@ -257,7 +257,7 @@
 
     background: rgba(11, 19, 38, 0.55);
 
-    color: var(--text);
+    color: #dae2fd;
 
     font-family: inherit;
 
@@ -313,7 +313,7 @@
 
     margin-top: 7px;
 
-    color: var(--danger-text);
+    color: #ffb4ab;
 
     font-size: 12px;
 

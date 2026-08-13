@@ -4,6 +4,18 @@
   </div>
 
   <div class="header-right">
+    <button
+      class="theme-toggle"
+      type="button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="
+        isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+      "
+      [title]="isDarkMode ? 'Light Mode' : 'Dark Mode'"
+    >
+      {{ isDarkMode ? "☀️" : "🌙" }}
+    </button>
+
     <button class="notification-btn" routerLink="/notifications">
       🔔
       <span class="notification-badge" *ngIf="unreadCount > 0">
